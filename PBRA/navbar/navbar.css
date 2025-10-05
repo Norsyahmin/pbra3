@@ -1,0 +1,605 @@
+/* Top bar container */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(135deg, #174080 0%, #2a5ba0 100%);
+    display: flex;
+    align-items: center;
+    z-index: 1000;
+    transition: top 0.3s;
+}
+
+/* Flex layout for topbar */
+.topbar-inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Left section (hamburger) */
+.topbar-left {
+    display: flex;
+    align-items: center;
+}
+
+/* === USER INFO === */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-right: 16px;
+}
+
+/* user-menu container and dropdown */
+.user-menu {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    outline: none;
+}
+
+.user-menu img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    transform: none;
+    /* remove left shift so icons sit directly to the left */
+    transition: transform 0.15s ease;
+}
+
+/* dropdown */
+.user-dropdown {
+    position: absolute;
+    top: 48px;
+    right: 0;
+    min-width: 160px;
+    background: #ffffff;
+    color: #333;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    display: none;
+    padding: 6px 0;
+    z-index: 1400;
+    list-style: none;
+    margin: 0;
+}
+
+.user-menu.open .user-dropdown {
+    display: block;
+}
+
+/* dropdown items */
+.user-dropdown li {
+    margin: 0;
+}
+
+.user-dropdown a {
+    display: block;
+    padding: 10px 14px;
+    color: #174080;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.user-dropdown a:hover {
+    background: #f1f5ff;
+}
+
+/* Hamburger container */
+.hamburger-container {
+
+    border-radius: 0;
+    padding: 12px 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+/* .hamburger-container:hover {
+    background-color: #1d53a6;
+} */
+
+/* Hamburger icon */
+.hamburger {
+    font-size: 24px;
+    color: #fff;
+    line-height: 1;
+}
+
+/* Centered search bar */
+.topbar-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.search-bar {
+    /* Responsive, consistent width across pages:
+       - preferred: percentage so it grows/shrinks with layout
+       - clamp ensures it never becomes too small/large
+       - explicit min/max and box-sizing prevent layout shifts caused by sibling elements */
+    width: clamp(300px, 46%, 480px);
+    min-width: 280px;
+    max-width: 480px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Right section (optional future links) */
+.topbar-right {
+    min-width: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* smaller gap so icons are closer to profile */
+    position: relative;
+    /* for absolute notification dropdown positioning */
+}
+
+/* Notification button */
+.notification-btn {
+    position: relative;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0;
+    box-sizing: border-box;
+    border-radius: 8px;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.notification-btn:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.16);
+}
+
+/* Notification dot (badge) */
+.notification-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: #e63946;
+    color: #fff;
+    font-size: 11px;
+    line-height: 18px;
+    border-radius: 12px;
+    display: inline-block;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Notification dropdown container */
+.notification-container {
+    position: absolute;
+    right: 8px;
+    top: 46px;
+    width: 320px;
+    max-height: 420px;
+    overflow: auto;
+    background: #fff;
+    color: #111;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(10, 25, 55, 0.14);
+    z-index: 1500;
+    padding: 8px;
+}
+
+/* Notification header */
+.notification-header {
+    font-weight: 600;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eef2ff;
+    color: #174080;
+}
+
+/* Notification list */
+.notification-list {
+    list-style: none;
+    margin: 0;
+    padding: 6px 4px;
+}
+
+.notification-list li {
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 6px 4px;
+    background: #fff;
+    color: #222;
+    font-size: 14px;
+}
+
+.notification-list li a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.notification-list li:hover {
+    background: #f6f8ff;
+}
+
+/* Mail button small adjustments */
+.mail-button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0;
+    box-sizing: border-box;
+    border-radius: 8px;
+    font-size: 20px;
+    line-height: 1;
+}
+
+/* ensure icon <i> inside the buttons is visible and properly sized */
+.notification-btn i,
+.mail-button i {
+    font-size: 18px;
+    color: #fff;
+    /* white icons on the blue topbar */
+    line-height: 1;
+    display: inline-block;
+}
+
+/* slightly increase clickable area if needed */
+.notification-btn,
+.mail-button {
+    padding: 8px 10px;
+}
+
+/* Sidebar (overlay style) */
+/* replaced left-based positioning with transform for smoother GPU-accelerated animation */
+.sidebar {
+    height: 100%;
+    width: 260px;
+    /* slightly wider for visual comfort */
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* keep origin at left:0 but hide with transform */
+    transform: translateX(-100%);
+    background-color: #174080;
+    overflow-x: hidden;
+    transition: transform 320ms cubic-bezier(.2, .9, .2, 1), box-shadow 220ms;
+    padding-top: 60px;
+    z-index: 1100;
+    color: #fff;
+    box-shadow: none;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* When active, slide in */
+.sidebar.active {
+    transform: translateX(0);
+    box-shadow: 8px 0 30px rgba(10, 25, 55, 0.45);
+}
+
+/* Overlay backdrop */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.32);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 260ms ease, visibility 260ms;
+    z-index: 1050;
+    pointer-events: none;
+    /* ignore clicks when hidden */
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    /* allow clicks when visible */
+}
+
+/* Sidebar link layout and entrance animation */
+/* keep transitions but no entrance delay by default (so closing is immediate) */
+.sidebar a {
+    padding: 14px 22px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #f1f1f1;
+    display: block;
+    transition: opacity 260ms ease, transform 320ms cubic-bezier(.2, .9, .2, 1);
+    opacity: 0;
+    transform: translateX(-12px);
+    margin: 6px 0;
+    will-change: opacity, transform;
+}
+
+/* When active, show links and apply staggered entrance delays */
+.sidebar.active a {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* staggered delays only while active */
+.sidebar.active a:nth-of-type(1) {
+    transition-delay: 60ms;
+}
+
+.sidebar.active a:nth-of-type(2) {
+    transition-delay: 110ms;
+}
+
+.sidebar.active a:nth-of-type(3) {
+    transition-delay: 160ms;
+}
+
+.sidebar.active a:nth-of-type(4) {
+    transition-delay: 210ms;
+}
+
+.sidebar.active a:nth-of-type(5) {
+    transition-delay: 260ms;
+}
+
+.sidebar.active a:nth-of-type(6) {
+    transition-delay: 310ms;
+}
+
+.sidebar.active a:nth-of-type(7) {
+    transition-delay: 360ms;
+}
+
+.sidebar.active a:nth-of-type(8) {
+    transition-delay: 410ms;
+}
+
+.sidebar.active a:nth-of-type(9) {
+    transition-delay: 460ms;
+}
+
+.sidebar.active a:nth-of-type(10) {
+    transition-delay: 510ms;
+}
+
+.sidebar.active a:nth-of-type(11) {
+    transition-delay: 560ms;
+}
+
+/* Slight hover highlight */
+.sidebar a:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+    transform: translateX(6px);
+}
+
+/* Close button position stays visible during animation */
+.closebtn {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 30px;
+    color: #f1f1f1;
+    cursor: pointer;
+    z-index: 1200;
+    transition: color 150ms;
+}
+
+/* Search popup overlay (glass blur) */
+.search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    align-items: center;
+    justify-content: center;
+    z-index: 1300;
+    display: none;
+}
+
+.search-overlay.active {
+    display: flex;
+}
+
+/* Popup container */
+.search-popup {
+    width: 80%;
+    max-width: 500px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    /* vertical center */
+    justify-content: space-between;
+    /* input left, close right */
+}
+
+.search-popup input {
+    flex: 1;
+    padding: 14px 18px;
+    font-size: 20px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: white;
+}
+
+/* Close button centered with input */
+.search-close {
+    font-size: 30px;
+    /* use a strong numeric weight for consistent boldness across platforms */
+    font-weight: 900;
+    /* prefer system UI fonts then fall back to common sans to ensure glyph weight */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #333;
+    cursor: pointer;
+    line-height: 1;
+    margin-left: 10px;
+    user-select: none;
+    transition: color 0.2s;
+}
+
+.search-close:hover {
+    color: #000;
+}
+
+/* Search results dropdown (anchored to input's parent) */
+.search-results {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    margin-top: 6px;
+    background: #fff;
+    color: #222;
+    border: 1px solid rgba(20, 64, 128, 0.08);
+    box-shadow: 0 8px 24px rgba(10, 20, 40, 0.08);
+    /* width will be set by JS to exactly match the input */
+    border-radius: 10px;
+    padding: 6px;
+    z-index: 9999;
+    overflow-y: auto;
+    max-height: 320px;
+    /* remove min-width so JS width is authoritative */
+    min-width: 0;
+    box-sizing: border-box;
+    transition: opacity 120ms ease, transform 120ms ease;
+    opacity: 0;
+    transform: translateY(-4px);
+}
+
+.search-results[style*="display: block"],
+.search-results[style*="display:block"] {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* individual result spans full width */
+.result-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    /* horizontal padding only; height is fixed */
+    border-radius: 6px;
+    color: #222;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    height: var(--search-input-height, 40px);
+    /* match search input height */
+}
+
+/* ensure icon vertically centers within fixed height */
+.result-item .result-icon {
+    color: #174080;
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* tighten text area to fit the fixed row height */
+.result-item .result-text {
+    font-size: 14px;
+    color: #1b263b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: calc(100% - 28px);
+    line-height: var(--search-input-height, 40px);
+}
+
+/* no-result message */
+.search-results .no-result {
+    padding: 10px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* scrollbar styling (modern browsers) */
+.search-results::-webkit-scrollbar {
+    width: 10px;
+}
+
+.search-results::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 6px;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+    background: rgba(20, 40, 80, 0.12);
+    border-radius: 6px;
+}
+
+/* small screens: make dropdown full width under input */
+@media (max-width: 767px) {
+    .search-results {
+        left: 0 !important;
+        right: 0 !important;
+        min-width: auto;
+        width: calc(100% - 20px);
+        margin-left: 10px;
+        margin-right: 10px;
+        border-radius: 8px;
+    }
+}
+
+.content {
+    margin-left: 0;
+    padding: 80px 20px 20px;
+    transition: filter 0.3s;
+    /* Adjust padding to account for fixed topbar */
+}
+
+.blurred {
+    filter: blur(5px);
+}
+
+/* This is a general overlay style, moved here or kept in navbar style if only used by navbar */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1050;
+    display: none;
+}
+
+.overlay.active {
+    display: block;
+}

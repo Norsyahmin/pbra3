@@ -1,0 +1,331 @@
+:root {
+    --primary: #174080;
+    --accent: #0b9d58;
+    --danger: #d9534f;
+    --muted: #6b7280;
+    --bg: #f6f8fb;
+    --card: #fff
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    font-family: Inter, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: #111;
+    margin: 0
+}
+
+.app-container {
+    padding: 24px;
+    max-width: 1000px;
+    margin: 0 auto
+}
+
+.toprow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px
+}
+
+.title {
+    font-size: 20px;
+    color: var(--primary);
+    margin: 0
+}
+
+.breadcrumb ul {
+    list-style: none;
+    display: flex;
+    gap: 10px;
+    padding: 0;
+    margin: 0 0 14px 0
+}
+
+/* Toolbar */
+.toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    background: #fff;
+}
+
+.breadcrumb a {
+    color: var(--muted);
+    text-decoration: none
+}
+
+.card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(15, 23, 42, 0.03);
+    margin-bottom: 14px
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    transition: opacity .18s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal[aria-hidden="false"] {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-panel {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 95%;
+    max-width: 460px;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+}
+
+.modal-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn.primary {
+    background: var(--primary);
+    color: #fff;
+}
+
+.btn.danger {
+    background: var(--danger);
+    color: #fff;
+}
+
+.section-title {
+    margin: 0 0 10px 0;
+    font-size: 16px
+}
+
+.requirements {
+    padding-left: 18px;
+    color: var(--muted)
+}
+
+.holders-card .holder-row,
+.suggested-card .candidate-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.35));
+    margin-bottom: 10px
+}
+
+.avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover
+}
+
+.holder-info {
+    display: flex;
+    flex-direction: column
+}
+
+.muted {
+    color: var(--muted);
+    font-size: 13px
+}
+
+.small {
+    font-size: 12px
+}
+
+.holder-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center
+}
+
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    color: #111;
+    text-decoration: none
+}
+
+.inline-form {
+    display: inline
+}
+
+.appoint-button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer
+}
+
+.dismiss-button {
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer
+}
+
+.search-button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer
+}
+
+@media (max-width:700px) {
+    .app-container {
+        padding: 14px
+    }
+
+    .toprow {
+        flex-direction: column;
+        align-items: flex-start
+    }
+
+    .holder-actions {
+        margin-left: 0;
+        margin-top: 8px
+    }
+}
+
+.department-roles {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid rgba(15, 23, 42, 0.05);
+    border-radius: 8px;
+    background-color: #fcfcfc;
+}
+
+.department-roles h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary);
+    font-size: 18px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.03);
+    padding-bottom: 10px;
+}
+
+.role-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.role-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.role-checkbox-item:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(23, 64, 128, 0.1);
+}
+
+.role-checkbox-item input[type="checkbox"] {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 1px solid var(--muted);
+    border-radius: 3px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.role-checkbox-item input[type="checkbox"]:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.role-checkbox-item input[type="checkbox"]:checked::before {
+    content: '\f00c';
+    /* Font Awesome check icon */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 10px;
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.assign-roles-btn {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.suggested-role-icon {
+    color: gold;
+    /* Or any other suitable color */
+    margin-left: 5px;
+    font-size: 0.9em;
+}
+
+.form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background-color: #fff;
+    font-size: 14px;
+    margin-top: 10px;
+}

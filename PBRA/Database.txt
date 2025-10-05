@@ -1,0 +1,37 @@
+CREATE TABLE signaling (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    meeting_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    type ENUM('offer','answer','candidate') NOT NULL,
+    sdp TEXT,
+    candidate TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE signaling ADD COLUMN processed TINYINT(1) DEFAULT 0;
+
+-- For Meeting Notification
+CREATE TABLE IF NOT EXISTS meeting_notification (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    meeting_id INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (meeting_id) REFERENCES meetings(meeting_id) ON DELETE CASCADE
+);
+
+
+
+
+-- Add new columns to feedback table to support admin dashboard
+ALTER TABLE `feedback` 
+ADD COLUMN `status` varchar(20) DEFAULT 'new',
+ADD COLUMN `admin_notes` text,
+ADD COLUMN `assigned_to` int,
+ADD INDEX `idx_feedback_status` (`status`),
+ADD INDEX `idx_feedback_category` (`category`),
+ADD INDEX `idx_feedback_rating` (`rating`),
+ADD CONSTRAINT `feedback_assigned_to_fk` FOREIGN KEY (`assigned_to`) REFERENCES `users`(`id`) ON DELETE SET NULL;

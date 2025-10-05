@@ -1,0 +1,223 @@
+.app-container {
+    padding: 20px;
+    max-width: 900px;
+    margin: 80px auto 20px auto;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.page-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.page-title .title {
+    font-size: 2.2em;
+    color: #333;
+    margin: 0;
+}
+
+.toolbar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-input,
+.select-filter {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-input::placeholder {
+    color: #888;
+}
+
+.select-filter {
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.lead {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.empty {
+    text-align: center;
+    color: #777;
+    font-size: 1.1em;
+    padding: 40px 0;
+    border: 1px dashed #e0e0e0;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.departments {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.department-section {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.department-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background-color: #174080;
+    /* Navbar color */
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.department-header:hover {
+    background-color: #2a5ba0;
+    /* Darker shade on hover */
+}
+
+.department-header.collapsed .dept-toggle i {
+    transform: rotate(0deg);
+}
+
+.department-header.expanded .dept-toggle i {
+    transform: rotate(180deg);
+}
+
+.dept-title {
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.dept-toggle i {
+    transition: transform 0.3s ease;
+    font-size: 1.1em;
+}
+
+.role-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.department-header.collapsed+.role-list {
+    max-height: 0;
+    opacity: 0;
+}
+
+.department-header:not(.collapsed)+.role-list {
+    max-height: 500px;
+    /* Adjust based on expected content height */
+    opacity: 1;
+    transition: max-height 0.4s ease-in, opacity 0.4s ease;
+}
+
+.role-item {
+    border-bottom: 1px solid #eee;
+}
+
+.role-item:last-child {
+    border-bottom: none;
+}
+
+.role-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.2s ease;
+}
+
+.role-link:hover {
+    background-color: #f0f2f5;
+}
+
+.role-item-inner {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.folder-icon {
+    font-size: 1.5em;
+    color: #007bff;
+}
+
+.text {
+    flex-grow: 1;
+}
+
+.role-name {
+    margin: 0;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.role-dept {
+    font-size: 0.85em;
+    color: #777;
+}
+
+/* For smaller screens */
+@media (max-width: 768px) {
+    .page-title {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .page-title .title {
+        font-size: 1.8em;
+        margin-bottom: 10px;
+    }
+
+    .toolbar {
+        flex-direction: column;
+    }
+
+    .search-input,
+    .select-filter {
+        min-width: unset;
+        width: 100%;
+    }
+
+    .department-header {
+        padding: 12px 15px;
+    }
+
+    .dept-title {
+        font-size: 1.1em;
+    }
+
+    .role-link {
+        padding: 10px 15px;
+    }
+
+    .role-name {
+        font-size: 1em;
+    }
+}

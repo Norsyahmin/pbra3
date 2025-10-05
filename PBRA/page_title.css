@@ -1,0 +1,59 @@
+body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #d4e5ff 0%, #ffffff 100%);
+    color: #333;
+    line-height: 1.6;
+}
+
+/* === Page Title === */
+.page-title {
+    margin-top: 80px;
+    padding: 20px 5%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.page-title h1 {
+    color: #174080;
+    font-size: 2rem;
+    margin: 0;
+    font-weight: 600;
+    position: relative;
+    padding-left: 15px;
+}
+
+.page-title h1:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 70%;
+    width: 4px;
+    background: linear-gradient(to bottom, #174080, #4a89dc);
+    border-radius: 2px;
+}
+
+
+
+/* === Responsive Fixes === */
+@media (max-width: 768px) {
+    .page-title h1 {
+        font-size: 1.8rem;
+    }
+
+}
+
+@media (max-width: 480px) {
+
+    .page-title {
+        padding: 0 15px;
+    }
+
+    .page-title h1 {
+        font-size: 1.5rem;
+    }
+}

@@ -1,0 +1,53 @@
+[2025-10-05T06:46:44+08:00] Mailtrap API token not set. MAILER_DRIVER=mailtrap requires MAILTRAP_API_TOKEN in environment.
+[2025-10-05T07:09:08+08:00] Mailtrap SEND DEBUG\nURL: https://send.api.mailtrap.io/api/send
+TOKEN: e01e8a**********************92bc
+PAYLOAD: {"from":{"email":"noreply@pb.edu.bn","name":"PBRA Test"},"to":[{"email":"you@example.com","name":""}],"subject":"PBRA Test Email","text":"This is a test email sent by mail_test.php","html":"<p>This is a test email sent by <strong>mail_test.php<\/strong>.<\/p>"}
+[2025-10-05T07:09:09+08:00] Mailtrap cURL error: SSL certificate problem: unable to get local issuer certificate
+[2025-10-05T07:09:34+08:00] Mailtrap debug: no CA bundle found; disabling SSL verification for debug run.
+[2025-10-05T07:09:34+08:00] Mailtrap SEND DEBUG\nURL: https://send.api.mailtrap.io/api/send
+TOKEN: e01e8a**********************92bc
+PAYLOAD: {"from":{"email":"noreply@pb.edu.bn","name":"PBRA Test"},"to":[{"email":"you@example.com","name":""}],"subject":"PBRA Test Email","text":"This is a test email sent by mail_test.php","html":"<p>This is a test email sent by <strong>mail_test.php<\/strong>.<\/p>"}
+[2025-10-05T07:09:35+08:00] Mailtrap HTTP 401 RESPONSE: {"success":false,"errors":["Unauthorized"]}
+[2025-10-05T07:14:05+08:00] Mailtrap debug: no CA bundle found; disabling SSL verification for debug run.
+[2025-10-05T07:14:05+08:00] Mailtrap SEND DEBUG\nURL: https://send.api.mailtrap.io/api/send
+TOKEN: 03fd35**********************e701
+PAYLOAD: {"from":{"email":"noreply@pb.edu.bn","name":"PBRA Test"},"to":[{"email":"you@example.com","name":""}],"subject":"PBRA Test Email","text":"This is a test email sent by mail_test.php","html":"<p>This is a test email sent by <strong>mail_test.php<\/strong>.<\/p>"}
+[2025-10-05T07:14:06+08:00] Mailtrap HTTP 401 RESPONSE: {"success":false,"errors":["Unauthorized"]}
+[2025-10-05T07:14:48+08:00] Mailtrap debug: no CA bundle found; disabling SSL verification for debug run.
+[2025-10-05T07:14:48+08:00] Mailtrap SEND DEBUG\nURL: https://send.api.mailtrap.io/api/send
+TOKEN: 03fd35**********************e701
+PAYLOAD: {"from":{"email":"noreply@pb.edu.bn","name":"PBRA Test"},"to":[{"email":"you@example.com","name":""}],"subject":"PBRA Test Email","text":"This is a test email sent by mail_test.php","html":"<p>This is a test email sent by <strong>mail_test.php<\/strong>.<\/p>"}
+[2025-10-05T07:14:49+08:00] Mailtrap HTTP 401 RESPONSE: {"success":false,"errors":["Unauthorized"]}
+[2025-10-05T07:23:17+08:00] Mailtrap debug: no CA bundle found; disabling SSL verification for debug run.
+[2025-10-05T07:23:17+08:00] Mailtrap SEND DEBUG\nURL: https://send.api.mailtrap.io/api/send
+TOKEN: 03fd35**********************e701
+PAYLOAD: {"from":{"email":"noreply@pb.edu.bn","name":"PBRA Test"},"to":[{"email":"test@example.com","name":""}],"subject":"PBRA Test Email","text":"This is a test email sent by mail_test.php","html":"<p>This is a test email sent by <strong>mail_test.php<\/strong>.<\/p>"}
+[2025-10-05T07:23:18+08:00] Mailtrap HTTP 401 RESPONSE: {"success":false,"errors":["Unauthorized"]}
+[2025-10-05T07:26:25+08:00] Mailtrap debug: no CA bundle found; disabling SSL verification for debug run.
+[2025-10-05T07:26:25+08:00] Mailtrap SEND DEBUG\nURL: https://send.api.mailtrap.io/api/send
+TOKEN: 03fd35**********************e701
+PAYLOAD: {"from":{"email":"noreply@pb.edu.bn","name":"PBRA Test"},"to":[{"email":"test@example.com","name":""}],"subject":"PBRA Test Email","text":"This is a test email sent by mail_test.php","html":"<p>This is a test email sent by <strong>mail_test.php<\/strong>.<\/p>"}
+[2025-10-05T07:26:26+08:00] Mailtrap HTTP 401 RESPONSE: {"success":false,"errors":["Unauthorized"]}
+[2025-10-05T07:26:57+08:00] Mailtrap attempting auth scheme: bearer\n[2025-10-05T07:26:57+08:00] Mailtrap cURL error: SSL certificate problem: unable to get local issuer certificate
+[2025-10-05T07:26:57+08:00] Mailtrap debug: no CA bundle found; disabling SSL verification for debug run.
+[2025-10-05T07:26:57+08:00] Mailtrap SEND DEBUG\nURL: https://send.api.mailtrap.io/api/send
+TOKEN: 03fd35**********************e701
+PAYLOAD: {"from":{"email":"noreply@pb.edu.bn","name":"PBRA Test"},"to":[{"email":"test@example.com","name":""}],"subject":"PBRA Test Email","text":"This is a test email sent by mail_test.php","html":"<p>This is a test email sent by <strong>mail_test.php<\/strong>.<\/p>"}
+[2025-10-05T07:26:58+08:00] Mailtrap HTTP 401 RESPONSE: {"success":false,"errors":["Unauthorized"]}
+[2025-10-05T08:04:11+08:00] Mailtrap attempting auth scheme: bearer\n[2025-10-05T08:04:11+08:00] Mailtrap cURL error: SSL certificate problem: unable to get local issuer certificate
+[2025-10-05T08:04:11+08:00] Mailtrap debug: no CA bundle found; disabling SSL verification for debug run.
+[2025-10-05T08:04:11+08:00] Mailtrap SEND DEBUG\nURL: https://send.api.mailtrap.io/api/send
+TOKEN: 03fd35**********************e701
+PAYLOAD: {"from":{"email":"no-reply@example.com","name":"PBRA Test"},"to":[{"email":"recipient@example.com","name":"Recipient"}],"subject":"PBRA Mailtrap integration test","text":"This is a test message from PBRA using Mailtrap integration.","html":"<p>This is a test message from PBRA using Mailtrap integration.<\/p>"}
+[2025-10-05T08:04:12+08:00] Mailtrap HTTP 401 RESPONSE: {"success":false,"errors":["Unauthorized"]}
+[2025-10-05T08:04:14+08:00] Mailtrap SDK error: Unauthorized. Make sure you are sending correct credentials with the request before retrying. Errors: Unauthorized.
+[2025-10-05T08:16:07+08:00] Mailtrap attempting auth scheme: bearer\n[2025-10-05T08:16:07+08:00] Mailtrap cURL error: SSL certificate problem: unable to get local issuer certificate
+[2025-10-05T08:16:07+08:00] Mailtrap debug: no CA bundle found; disabling SSL verification for debug run.
+[2025-10-05T08:16:07+08:00] Mailtrap SEND DEBUG\nURL: https://send.api.mailtrap.io/api/send
+TOKEN: 03fd35**********************e701
+PAYLOAD: {"from":{"email":"no-reply@example.com","name":"PBRA Test"},"to":[{"email":"recipient@example.com","name":"Recipient"}],"subject":"PBRA Mailtrap integration test","text":"This is a test message from PBRA using Mailtrap integration.","html":"<p>This is a test message from PBRA using Mailtrap integration.<\/p>"}
+[2025-10-05T08:16:08+08:00] Mailtrap HTTP 401 RESPONSE: {"success":false,"errors":["Unauthorized"]}
+[2025-10-05T08:16:09+08:00] Mailtrap SDK error: Unauthorized. Make sure you are sending correct credentials with the request before retrying. Errors: Unauthorized.
+[2025-10-05T08:31:48+08:00] Mailtrap debug: no CA bundle found; disabling SSL verification for debug run.
+[2025-10-05T08:31:48+08:00] Mailtrap attempting auth scheme: bearer
+[2025-10-05T08:31:49+08:00] Mailtrap HTTP 200 RESPONSE: {"success":true,"message_ids":["b060f510-a182-11f0-0000-f12a78cc3ee7"]}

@@ -1,0 +1,448 @@
+/* Ensure content area has room above footer and for fixed controls */
+.content {
+    padding-bottom: 140px;
+    /* leaves space for footer and floating scroll button */
+    box-sizing: border-box;
+}
+
+/* Small visual for attach-files focus/drag state (optional) */
+.attach-files {
+    border: 2px dashed #d6dbe8;
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.attach-files.drag-over {
+    background: rgba(37, 84, 152, 0.04);
+    border-color: #255498;
+}
+
+/* Card wrapper for the create form
+   Note: the visible card is provided by the inner .form (registration-style).
+   Keep the outer .card neutral to avoid double-nested shadows and padding. */
+.card {
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 12px 20px;
+}
+
+/* Page title spacing: keep the H1 close to the form card */
+.container>h1 {
+    margin: 12px 0 8px 0;
+    font-size: 22px;
+    color: #111827;
+}
+
+/* Registration-inspired form styles (scoped to this page) */
+.form {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 24px 22px 18px 22px;
+    max-width: 760px;
+    margin: 12px auto 28px auto;
+    border: 1px solid #e3e3e3;
+}
+
+.form label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    color: #1a2a3a;
+}
+
+.form input[type="text"],
+.form input[type="date"],
+.form textarea,
+.form select,
+.form input[type="file"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #bfc7d1;
+    border-radius: 6px;
+    background: #f7f9fa;
+    font-size: 15px;
+    margin-bottom: 2px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.form input:focus,
+.form textarea:focus,
+.form select:focus {
+    border-color: #0078d4;
+    outline: none;
+    background: #fff;
+}
+
+.form textarea {
+    resize: vertical;
+    min-height: 70px;
+}
+
+.form .form-actions-right {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.form .confirm-btn {
+    padding: 10px 28px;
+    border-radius: 6px;
+    border: 1px solid #265599 !important;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+    background-color: #265599 !important;
+    color: #ffffff !important;
+}
+
+.form .confirm-btn:hover {
+    background-color: #224d88 !important;
+    border-color: #224d88 !important;
+}
+
+.form .cancel-btn {
+    padding: 10px 28px;
+    border-radius: 6px;
+    border: 1px solid #6c757d !important;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+    background-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.form .cancel-btn:hover {
+    background-color: #5a6268 !important;
+    border-color: #5a6268 !important;
+}
+
+
+/* Enhanced form styling */
+.card label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* form controls full width for mobile */
+.card input[type="text"],
+.card input[type="date"],
+.card textarea,
+.card select,
+.card input[type="file"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    margin-top: 8px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(16, 24, 40, 0.06);
+    border-radius: 10px;
+    font-size: 15px;
+    background: white;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card input:focus,
+.card textarea:focus,
+.card select:focus {
+    outline: none;
+    border-color: rgba(37, 84, 152, 0.9);
+    box-shadow: 0 6px 20px rgba(37, 84, 152, 0.12);
+}
+
+/* Form layout helpers */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.form-row.two-col {
+    grid-template-columns: 1fr 1fr;
+}
+
+.form-group label {
+    font-size: 13px;
+    color: #374151;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+/* Larger primary button */
+.btn.primary {
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(38, 85, 153, 0.12);
+}
+
+/* Adjust base button style for modern look */
+.btn {
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+}
+
+/* Task Type Dropdown Styling */
+#task_type {
+    background: white;
+    cursor: pointer;
+}
+
+#task_type optgroup {
+    font-weight: 600;
+    color: #374151;
+    background: #f9fafb;
+    padding: 8px;
+}
+
+#task_type option {
+    padding: 8px 12px;
+    color: #1f2937;
+    background: white;
+}
+
+#task_type option:hover {
+    background: #f3f4f6;
+}
+
+/* Custom task type input */
+#custom_task_type {
+    border-color: #fbbf24;
+    background: #fffbeb;
+}
+
+#custom_task_type:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+/* When user selects 'Other' we may want the custom input to match other fields.
+   The .no-highlight class removes the yellow background/border applied above. */
+#custom_task_type.no-highlight {
+    border-color: #bfc7d1;
+    background: #f7f9fa;
+    box-shadow: none;
+}
+
+#custom_task_type.no-highlight:focus {
+    border-color: #0078d4;
+    box-shadow: none;
+}
+
+/* Button styling */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+    color: #374151;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    margin-right: 12px;
+}
+
+.btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+}
+
+.btn.primary {
+    background: #265599;
+    color: white;
+    border-color: #265599;
+}
+
+.btn.primary:hover {
+    background: #1e40af;
+    border-color: #1e40af;
+}
+
+/* Red variant for Cancel anchor on create task page */
+.btn.cancel-red {
+    background: #dc2626;
+    /* red */
+    color: #ffffff;
+    border-color: #dc2626;
+}
+
+.btn.cancel-red:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+/* Flash messages */
+.flash {
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.flash-success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.flash-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+.attach-files {
+    position: relative;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+    cursor: pointer;
+    background: #fafafa;
+    transition: all 0.2s ease;
+}
+
+.attach-files:hover {
+    border-color: #265599;
+    background: #f0f8ff;
+}
+
+.attach-files.drag-over {
+    background: rgba(37, 84, 152, 0.04);
+    border-color: #255498;
+}
+
+.attach-files input[type=file] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.attach-files i {
+    font-size: 24px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.attach-files p {
+    color: #6b7280;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Form layout improvements */
+.card>div {
+    margin-bottom: 8px;
+}
+
+.card h2 {
+    color: #1f2937;
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Multi-select styling */
+select[multiple] {
+    min-height: 120px;
+    padding: 8px;
+}
+
+select[multiple] option {
+    padding: 4px 8px;
+    margin: 2px 0;
+}
+
+select[multiple] option:checked {
+    background: #265599;
+    color: white;
+}
+
+/* Small text styling */
+small {
+    color: #6b7280;
+    font-size: 12px;
+    display: block;
+    margin-top: 4px;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+    width: auto !important;
+    margin-right: 8px;
+    accent-color: #265599;
+}
+
+/* File info display */
+#file-info {
+    margin-top: 10px;
+    padding: 8px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #374151;
+}
+
+@media (max-width: 760px) {
+    .container {
+        padding: 10px;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    .attach-files {
+        padding: 12px;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+        margin: 6px 0;
+    }
+
+    .form-row.two-col {
+        grid-template-columns: 1fr;
+    }
+
+    .card input[type="text"],
+    .card input[type="date"],
+    .card textarea,
+    .card select {
+        font-size: 16px;
+        /* Prevent zoom on iOS */
+    }
+}
