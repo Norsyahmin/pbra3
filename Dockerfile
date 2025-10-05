@@ -30,7 +30,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Copy application code. Updated path to match build context
-COPY ./PBRA /var/www/html/
+COPY ../PBRA /var/www/html/
 
 # Ensure correct permissions for php-fpm user (www-data)
 RUN chown -R www-data:www-data /var/www/html \
