@@ -1,6 +1,7 @@
 /* Announcement Carousel - Enhanced Styling */
 .announcement-carousel {
-    padding: 25px;
+    /* Made more compact */
+    padding: 15px;
     background: linear-gradient(135deg, #f0f6ff 0%, #ffffff 100%);
     border-radius: 10px;
     margin: 20px 0;
@@ -29,7 +30,8 @@
 
 .announcement-slide {
     min-width: 100%;
-    padding: 25px;
+    /* Reduced padding and height for a smaller, tighter appearance */
+    padding: 15px;
     box-sizing: border-box;
     background: white;
     border: 1px solid #e1e6f0;
@@ -37,6 +39,40 @@
     text-align: center;
     box-shadow: 0 2px 6px rgba(23, 64, 128, 0.05);
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 250px;
+    /* Increased height to accommodate larger image */
+}
+
+.announcement-slide h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #174080;
+}
+
+.announcement-slide .desc {
+    margin: 15px 0;
+    line-height: 1.6;
+    color: #555;
+    flex-grow: 1;
+}
+
+/* Handle empty announcement state */
+.announcement-slide:only-child {
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+}
+
+.announcement-slide:only-child h3 {
+    color: #6c757d;
+}
+
+.announcement-slide:only-child .desc {
+    color: #6c757d;
+    font-style: italic;
 }
 
 .announcement-slide:hover {
@@ -45,10 +81,41 @@
 }
 
 .announcement-slide img {
-    max-height: 200px;
-    object-fit: contain;
+    /* Larger images for better visibility */
+    max-height: 250px;
+    /* Increased max-height */
+    object-fit: cover;
+    /* Changed to cover to fill space */
     border-radius: 6px;
-    margin: 15px 0;
+    margin: 10px auto;
+    /* Centered margin */
+    max-width: 90%;
+    /* Adjusted max-width */
+    height: auto;
+    transition: opacity 0.3s ease;
+}
+
+.announcement-slide img[src=""],
+.announcement-slide img:not([src]) {
+    display: none;
+}
+
+/* Loading state */
+.announcement-carousel.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.announcement-carousel.loading::after {
+    content: "Loading announcements...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 10;
 }
 
 .carousel-btn {
@@ -58,8 +125,9 @@
     background: linear-gradient(135deg, #174080 0%, #2a5ba0 100%);
     color: white;
     border: none;
-    width: 40px;
-    height: 40px;
+    /* slightly smaller nav controls */
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     cursor: pointer;
     z-index: 2;
@@ -68,7 +136,8 @@
     justify-content: center;
     box-shadow: 0 2px 8px rgba(23, 64, 128, 0.3);
     transition: all 0.3s ease;
-    font-size: 0; /* hide inner text */
+    font-size: 0;
+    /* hide inner text */
 }
 
 .carousel-btn:hover {
@@ -97,14 +166,14 @@
 }
 
 .add-announcement-toggle {
-    padding: 10px 20px;
+    padding: 8px 14px;
     background: linear-gradient(135deg, #174080 0%, #2a5ba0 100%);
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
@@ -117,9 +186,9 @@
 }
 
 .announcement-form {
-    margin-top: 25px;
+    margin-top: 20px;
     background: #fff;
-    padding: 25px;
+    padding: 20px;
     border-radius: 8px;
     border: 1px solid #e1e6f0;
     box-shadow: 0 4px 12px rgba(23, 64, 128, 0.08);
@@ -129,35 +198,35 @@
 .carousel-dots {
     text-align: center;
     margin-top: 10px;
-  }
-  
-  .carousel-dots .dot {
-    height: 10px;
-    width: 10px;
-    margin: 0 6px;
+}
+
+.carousel-dots .dot {
+    height: 8px;
+    width: 8px;
+    margin: 0 5px;
     background-color: #bbb;
     border-radius: 50%;
     display: inline-block;
     transition: background-color 0.3s ease;
     cursor: pointer;
-  }
-  
-  .carousel-dots .dot.active {
+}
+
+.carousel-dots .dot.active {
     background-color: #174080;
-  }
-  
+}
+
 .delete-btn {
-  margin-top: 15px;
-  padding: 6px 12px;
-  background: #af1a1a;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+    margin-top: 15px;
+    padding: 6px 12px;
+    background: #af1a1a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .delete-btn:hover {
-  background-color: #c82333;
+    background-color: #c82333;
 }
 
 /*MODAL*/
@@ -173,17 +242,18 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(3px); /* Subtle blur effect */
+    backdrop-filter: blur(3px);
+    /* Subtle blur effect */
 }
 
 .modal-content {
     top: 10%;
     left: 30%;
     background-color: white;
-    padding: 30px;
+    padding: 22px;
     border-radius: 10px;
     width: 90%;
-    max-width: 500px;
+    max-width: 460px;
     box-shadow: 0 5px 25px rgba(23, 64, 128, 0.2);
     position: relative;
     animation: modalFadeIn 0.3s ease-out;
@@ -318,22 +388,22 @@
     line-height: 1.6;
     margin-bottom: 10px;
     transition: all 0.3s ease;
-  }
-  
-  .rich-text-box:focus {
+}
+
+.rich-text-box:focus {
     outline: none;
     border-color: #4a89dc;
     box-shadow: 0 0 0 2px rgba(74, 137, 220, 0.2);
-  }
-  
-  .formatting-toolbar {
+}
+
+.formatting-toolbar {
     display: flex;
     justify-content: center;
     gap: 12px;
     margin-bottom: 10px;
-  }
-  
-  .formatting-toolbar button {
+}
+
+.formatting-toolbar button {
     background: #f1f1f1;
     border: 1px solid #ccc;
     padding: 6px 12px;
@@ -343,15 +413,15 @@
     font-weight: bold;
     color: #333;
     transition: all 0.2s ease;
-  }
-  
-  .formatting-toolbar button:hover {
+}
+
+.formatting-toolbar button:hover {
     background-color: #e1eaff;
     border-color: #174080;
     color: #174080;
-  }
-  
-  .announcement-form button[type="submit"] {
+}
+
+.announcement-form button[type="submit"] {
     background: linear-gradient(135deg, #174080 0%, #2a5ba0 100%);
     color: white;
     border: none;
@@ -362,13 +432,13 @@
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: 15px;
-  }
-  
-  .announcement-form button[type="submit"]:hover {
+}
+
+.announcement-form button[type="submit"]:hover {
     background: linear-gradient(135deg, #2a5ba0 0%, #174080 100%);
     box-shadow: 0 4px 12px rgba(23, 64, 128, 0.3);
-  }
-  
+}
+
 
 /*DELETE*/
 
@@ -383,35 +453,36 @@
     position: relative;
     animation: modalFadeIn 0.3s ease-out;
 }
+
 .modal-button-group {
     display: flex;
     justify-content: center;
     gap: 15px;
-  }
-  
-  .cancel-btn {
+}
+
+.cancel-btn {
     background: #ccc;
     border: none;
     padding: 10px 18px;
     border-radius: 5px;
     margin: 10px 8px 0;
     cursor: pointer;
-  }
-  
-  .confirm-delete-btn {
+}
+
+.confirm-delete-btn {
     background: #a71d2a;
     border: none;
     padding: 10px 18px;
     border-radius: 5px;
     margin: 10px 8px 0;
     cursor: pointer;
-  }
-  
-  .confirm-delete-btn:hover {
+}
+
+.confirm-delete-btn:hover {
     background: #a71d2a;
-  }
-  
-  .cancel-btn {
+}
+
+.cancel-btn {
     background: #ccc;
     border: none;
     padding: 10px 18px;
@@ -419,29 +490,41 @@
     cursor: pointer;
     font-size: 0.95rem;
     transition: background 0.3s;
-  }
-  
-  .cancel-btn:hover {
+}
+
+.cancel-btn:hover {
     background: #bbb;
-  }
-  
+}
+
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @media (max-width: 768px) {
     .announcement-carousel {
-        padding: 15px;
+        padding: 12px;
     }
 
     .announcement-slide {
-        padding: 20px;
+        padding: 12px;
+        min-height: 120px;
     }
 
     .carousel-btn {
-        width: 36px;
-        height: 36px;
+        width: 34px;
+        height: 34px;
+    }
+
+    .announcement-slide img {
+        max-height: 110px;
     }
 }

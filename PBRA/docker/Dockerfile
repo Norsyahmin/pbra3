@@ -33,11 +33,10 @@ WORKDIR /var/www/html
 # and avoid embedding secrets (.env) into images — use runtime env vars or Docker secrets.
 COPY . /var/www/html
 
-# If a composer.json exists, install PHP dependencies so the image is runnable
-# without relying on a host-mounted vendor directory. Use --no-dev in prod.
-RUN if [ -f /var/www/html/composer.json ]; then \
-    composer install --no-dev --optimize-autoloader --no-interaction --no-progress; \
-    fi
+# Create the uploads/reports directory and set permissions
+RUN mkdir -p /var/www/html/uploads/reports \
+    && chown -R www-data:www-data /var/www/html/uploads \
+    && chmod -R 775 /var/www/html/uploads
 
 # Ensure correct permissions for php-fpm user (www-data)
 RUN chown -R www-data:www-data /var/www/html \
@@ -48,4 +47,3 @@ EXPOSE 9000
 
 # Use php-fpm as the container entrypoint
 CMD ["php-fpm"]
-

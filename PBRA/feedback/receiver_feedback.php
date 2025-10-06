@@ -24,7 +24,7 @@ $stmt->bind_result($user_type);
 $stmt->fetch();
 $stmt->close();
 
-if ($user_type !== 'super_admin') {
+if ($user_type !== 'super_admin' && $user_type !== 'admin') {
   header("Location: ../homepage/homepage.php");
   exit();
 }
@@ -36,11 +36,21 @@ while ($row = $tableStructure->fetch_assoc()) {
   $columns[$row['Field']] = true;
 }
 
-// Define default values for missing columns
-$statusColumn = isset($columns['status']) ? 'status' : "IFNULL(NULL, 'new') as status";
-$adminNotesColumn = isset($columns['admin_notes']) ? 'admin_notes' : "'' as admin_notes";
-$assignedToColumn = isset($columns['assigned_to']) ? 'assigned_to' : "NULL as assigned_to";
-$timeColumn = isset($columns['submitted_at']) ? 'submitted_at' : 'submitted_at';
+// Helper: safely format a datetime-like value; returns '–' when not formatable
+function formatDate($value, $format = 'M d, Y') {
+  if (empty($value)) return '–';
+  // If it's numeric (id fallback), return '–' to avoid nonsense dates
+  if (is_numeric($value) && strlen((string)$value) < 11) return '–';
+  $ts = strtotime($value);
+  if ($ts === false) return '–';
+  return date($format, $ts);
+}
+
+// Define default SELECT fragments for missing columns
+$statusSelect = isset($columns['status']) ? 'f.status' : "IFNULL(NULL, 'new') as status";
+$adminNotesSelect = isset($columns['admin_notes']) ? 'f.admin_notes' : "'' as admin_notes";
+$assignedToSelect = isset($columns['assigned_to']) ? 'f.assigned_to' : "NULL as assigned_to";
+// no direct $timeColumn here; we'll use $timeColumnName and alias as $timeColumnAlias below
 
 // Process status update if submitted
 if (isset($_POST['update_status'])) {
@@ -105,77 +115,84 @@ $rating_filter = isset($_GET['rating']) ? $_GET['rating'] : 'all';
 $search_query = isset($_GET['search']) ? $_GET['search'] : '';
 
 // Debug statement
-echo "<!-- Using timeColumn: $timeColumn -->";
-echo "<!-- Columns in table: " . implode(", ", array_keys($columns)) . " -->";
+// echo "<!-- Columns in table: " . implode(", ", array_keys($columns)) . " -->";
 
-// Build query based on filters
-$query = "SELECT 
-          f.id, f.category, f.message, f.rating, f.attachment, 
-          $statusColumn, $timeColumn, $adminNotesColumn, $assignedToColumn, 
-          IFNULL(u.full_name, 'Unknown User') as full_name 
-          FROM feedback f 
-          LEFT JOIN users u ON f.user_id = u.id 
-          WHERE 1=1";
+// Build query based on filters (safer, fully-qualified names, escape inputs)
+// Determine a safe time column fallback and use a single alias 'time_column' throughout
+$timeColumnName = isset($columns['submitted_at']) ? 'submitted_at' : (isset($columns['created_at']) ? 'created_at' : 'id');
+$timeColumnAlias = 'time_column';
 
+$where = "WHERE 1=1";
 if ($category_filter !== 'all') {
-  $query .= " AND LOWER(f.category) = LOWER('$category_filter')";
+  $cat = $conn->real_escape_string($category_filter);
+  $where .= " AND LOWER(f.category) = LOWER('{$cat}')";
 }
 
-// Only add status filter if the column exists
 if ($status_filter !== 'all' && isset($columns['status'])) {
-  $query .= " AND f.status = '$status_filter'";
+  $st = $conn->real_escape_string($status_filter);
+  $where .= " AND f.status = '{$st}'";
 }
 
 if ($rating_filter !== 'all') {
-  $query .= " AND f.rating = '$rating_filter'";
+  $rt = (int)$rating_filter;
+  $where .= " AND f.rating = {$rt}";
 }
 
 if (!empty($search_query)) {
-  $query .= " AND (f.message LIKE '%$search_query%' OR u.full_name LIKE '%$search_query%')";
+  $s = $conn->real_escape_string($search_query);
+  $where .= " AND (f.message LIKE '%{$s}%' OR u.full_name LIKE '%{$s}%')";
 }
 
-$query .= " ORDER BY f.$timeColumn DESC";
+$select = sprintf(
+  "SELECT f.id, f.category, f.message, f.rating, f.attachment, %s, f.%s as %s, %s, %s, IFNULL(u.full_name, 'Unknown User') as full_name FROM feedback f LEFT JOIN users u ON f.user_id = u.id %s ORDER BY f.%s DESC",
+  $statusSelect,
+  $conn->real_escape_string($timeColumnName),
+  $timeColumnAlias,
+  $adminNotesSelect,
+  $assignedToSelect,
+  $where,
+  $conn->real_escape_string($timeColumnName)
+);
 
-// Debug the query
-echo "<!-- Query: $query -->";
+// Run main feedback query into a dedicated variable to avoid collisions with included files
+$feedback_result = $conn->query($select);
 
-$result = $conn->query($query);
+// Add this debug section (kept as comments so it doesn't break layout)
+// echo "<!-- DEBUG OUTPUT START -->";
+// if ($result) {
+//   echo "<!-- Query succeeded, returned " . $result->num_rows . " rows -->";
+//   // Store the first few rows to check
+//   $debug_rows = [];
+//   $temp_result = $result;
+//   while ($row = $temp_result->fetch_assoc()) {
+//     $debug_rows[] = $row;
+//     if (count($debug_rows) >= 3) break;
+//   }
+//   echo "<!-- Sample data: " . json_encode($debug_rows) . " -->";
+//   // Reset the result pointer
+//   $result->data_seek(0);
+// } else {
+//   echo "<!-- Query failed: " . $conn->error . " -->";
+// }
+// echo "<!-- DEBUG OUTPUT END -->";
 
-if (!$result) {
-  echo "<!-- SQL Error: " . $conn->error . " -->";
-}
-
-// Add this debug section
-echo "<!-- DEBUG OUTPUT START -->";
-if ($result) {
-  echo "<!-- Query succeeded, returned " . $result->num_rows . " rows -->";
-  // Store the first few rows to check
-  $debug_rows = [];
-  $temp_result = $result;
-  while ($row = $temp_result->fetch_assoc()) {
-    $debug_rows[] = $row;
-    if (count($debug_rows) >= 3) break;
-  }
-  echo "<!-- Sample data: " . json_encode($debug_rows) . " -->";
-  // Reset the result pointer
-  $result->data_seek(0);
-} else {
-  echo "<!-- Query failed: " . $conn->error . " -->";
-}
-echo "<!-- DEBUG OUTPUT END -->";
-
-// Get selected feedback details
+// Get selected feedback details using a prepared statement and COALESCE fallback for timestamp
 $selected_feedback = null;
 if (isset($_GET['id'])) {
-  $feedback_id = $_GET['id'];
-  $detail_query = "SELECT f.*, $timeColumn as timestamp, u.full_name, u.email FROM feedback f 
-                    LEFT JOIN users u ON f.user_id = u.id 
-                    WHERE f.id = $feedback_id";
-  $detail_result = $conn->query($detail_query);
-  if (!$detail_result) {
-    echo "<!-- Detail SQL Error: " . $conn->error . " -->";
+  $feedback_id = (int)$_GET['id'];
+  $detail_sql = "SELECT f.*, COALESCE(f.submitted_at, f.created_at, f.id) as timestamp, u.full_name, u.email FROM feedback f LEFT JOIN users u ON f.user_id = u.id WHERE f.id = ?";
+  $detail_stmt = $conn->prepare($detail_sql);
+  if ($detail_stmt) {
+    $detail_stmt->bind_param('i', $feedback_id);
+    $detail_stmt->execute();
+    $detail_result = $detail_stmt->get_result();
+    if ($detail_result) {
+      $selected_feedback = $detail_result->fetch_assoc();
+    }
+    $detail_stmt->close();
   } else {
-    $selected_feedback = $detail_result->fetch_assoc();
+    // optional: log error
+    // error_log('Detail statement prepare failed: ' . $conn->error);
   }
 }
 
@@ -189,24 +206,66 @@ if ($admins_result) {
   }
 }
 
+// Attempt to fetch user's profile fields for the selected feedback (work_experience, education)
+if ($selected_feedback && isset($selected_feedback['user_id'])) {
+  $u_id = (int)$selected_feedback['user_id'];
+  $prof_stmt = $conn->prepare("SELECT work_experience, education FROM users WHERE id = ? LIMIT 1");
+  if ($prof_stmt) {
+    $prof_stmt->bind_param('i', $u_id);
+    $prof_stmt->execute();
+    $prof_res = $prof_stmt->get_result();
+    if ($prof_res) {
+      $prof_row = $prof_res->fetch_assoc();
+      if ($prof_row) {
+        // Merge profile fields into selected_feedback for server-side render
+        $selected_feedback['work_experience'] = $prof_row['work_experience'] ?? '';
+        $selected_feedback['education'] = $prof_row['education'] ?? '';
+      }
+    }
+    $prof_stmt->close();
+  }
+}
+
 // Calculate analytics
+// Calculate analytics using prepared statements where appropriate
 $analytics = [
-  'total' => $conn->query("SELECT COUNT(*) as count FROM feedback")->fetch_assoc()['count'],
-  'avg_rating' => $conn->query("SELECT AVG(rating) as avg FROM feedback WHERE rating IS NOT NULL")->fetch_assoc()['avg'],
+  'total' => 0,
+  'avg_rating' => 0,
   'by_category' => []
 ];
 
-// Analytics by category
-$categories = ['bug_report', 'feature_request', 'general_feedback', 'other'];
-foreach ($categories as $cat) {
-  $cat_result = $conn->query("SELECT COUNT(*) as count FROM feedback WHERE category = '$cat'");
-  if ($cat_result) {
-    $cat_count = $cat_result->fetch_assoc()['count'];
-    $analytics['by_category'][$cat] = $cat_count;
-  } else {
-    $analytics['by_category'][$cat] = 0;
-  }
+// total
+$stmt = $conn->prepare("SELECT COUNT(*) as count FROM feedback");
+if ($stmt) {
+  $stmt->execute();
+  $res = $stmt->get_result();
+  $analytics['total'] = (int)($res->fetch_assoc()['count'] ?? 0);
+  $stmt->close();
 }
+
+// avg rating
+$stmt = $conn->prepare("SELECT AVG(rating) as avg FROM feedback WHERE rating IS NOT NULL");
+if ($stmt) {
+  $stmt->execute();
+  $res = $stmt->get_result();
+  $analytics['avg_rating'] = (float)($res->fetch_assoc()['avg'] ?? 0);
+  $stmt->close();
+}
+
+// Analytics by category (prepared)
+$categories = ['bug_report', 'feature_request', 'general_feedback', 'other'];
+$cat_stmt = $conn->prepare("SELECT COUNT(*) as count FROM feedback WHERE category = ?");
+foreach ($categories as $cat) {
+  $count = 0;
+  if ($cat_stmt) {
+    $cat_stmt->bind_param('s', $cat);
+    $cat_stmt->execute();
+    $cres = $cat_stmt->get_result();
+    $count = (int)($cres->fetch_assoc()['count'] ?? 0);
+  }
+  $analytics['by_category'][$cat] = $count;
+}
+if ($cat_stmt) $cat_stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -221,6 +280,7 @@ foreach ($categories as $cat) {
 </head>
 
 <body>
+  <?php include '../navbar/navbar.php'; ?>
   <div class="dashboard">
     <header>
       <h1>Feedback Dashboard</h1>
@@ -279,8 +339,8 @@ foreach ($categories as $cat) {
             </tr>
           </thead>
           <tbody>
-            <?php if ($result && $result->num_rows > 0): ?>
-              <?php while ($row = $result->fetch_assoc()): ?>
+            <?php if ($feedback_result && $feedback_result->num_rows > 0): ?>
+              <?php while ($row = $feedback_result->fetch_assoc()): ?>
                 <tr class="feedback-row <?= isset($_GET['id']) && $_GET['id'] == $row['id'] ? 'selected' : '' ?>"
                   data-id="<?= $row['id'] ?>" onclick="viewFeedback(<?= $row['id'] ?>)">
                   <!-- Removed ID cell -->
@@ -302,12 +362,12 @@ foreach ($categories as $cat) {
                       <?= ucfirst(str_replace('_', ' ', $row['status'] ?? 'new')) ?>
                     </span>
                   </td>
-                  <td><?= isset($row[$timeColumn]) ? date('M d, Y', strtotime($row[$timeColumn])) : '–' ?></td>
+                  <td><?= isset($row['time_column']) ? date('M d, Y', strtotime($row['time_column'])) : '–' ?></td>
                 </tr>
               <?php endwhile; ?>
             <?php else: ?>
               <tr>
-                <td colspan="7" class="no-results">No feedback found matching your criteria<?= $result ? '' : ' (SQL Error: ' . $conn->error . ')' ?></td>
+                <td colspan="7" class="no-results">No feedback found matching your criteria<?= $feedback_result ? '' : ' (SQL Error: ' . $conn->error . ')' ?></td>
               </tr>
             <?php endif; ?>
           </tbody>
@@ -320,12 +380,24 @@ foreach ($categories as $cat) {
           <p><strong>From:</strong> <?= htmlspecialchars($selected_feedback['full_name']) ?> (<?= htmlspecialchars($selected_feedback['email']) ?>)</p>
           <p><strong>Category:</strong> <?= str_replace('_', ' ', ucfirst($selected_feedback['category'])) ?></p>
           <p><strong>Rating:</strong> <?= $selected_feedback['rating'] ? str_repeat('⭐', $selected_feedback['rating']) : 'Not rated' ?></p>
-          <p><strong>Submitted:</strong> <?= date('F d, Y \a\t h:i A', strtotime($selected_feedback['timestamp'] ?? $selected_feedback['submitted_at'])) ?></p>
+          <p><strong>Submitted:</strong> <?= htmlspecialchars(formatDate($selected_feedback['timestamp'] ?? $selected_feedback['submitted_at'], 'F d, Y \a\t h:i A')) ?></p>
 
           <div class="feedback-content">
             <h4>Feedback:</h4>
             <p><?= nl2br(htmlspecialchars($selected_feedback['message'])) ?></p>
           </div>
+
+          <?php if (!empty($selected_feedback['work_experience']) || !empty($selected_feedback['education'])): ?>
+            <div class="user-profile">
+              <h4>User Profile</h4>
+              <?php if (!empty($selected_feedback['work_experience'])): ?>
+                <p><strong>Work Experience:</strong> <?= nl2br(htmlspecialchars($selected_feedback['work_experience'])) ?></p>
+              <?php endif; ?>
+              <?php if (!empty($selected_feedback['education'])): ?>
+                <p><strong>Education:</strong> <?= nl2br(htmlspecialchars($selected_feedback['education'])) ?></p>
+              <?php endif; ?>
+            </div>
+          <?php endif; ?>
 
           <?php if ($selected_feedback['attachment']): ?>
             <p><strong>Attachment:</strong>
@@ -472,21 +544,146 @@ foreach ($categories as $cat) {
       </div>
     </section>
   </div>
-
-  <footer>
-    <p>&copy; 2025 Politeknik Brunei Role Appointment (PbRA). All rights reserved.</p>
-  </footer>
   <!-- Image Preview Modal -->
   <div id="imageModal" class="modal">
     <span class="close-modal" onclick="closeModal()">&times;</span>
     <img id="modalImage" class="modal-content">
   </div>
 
+<?php
+// Pre-render admin options HTML for use in client-side JS (JSON-encoded)
+$adminOptionsHtml = '';
+if (!empty($admins) && is_array($admins)) {
+  foreach ($admins as $a) {
+    $adminOptionsHtml .= '<option value="' . htmlspecialchars($a['id']) . '">' . htmlspecialchars($a['full_name']) . '</option>';
+  }
+}
+?>
   <script>
-    // View feedback details
+    // View feedback details via AJAX and render into the details pane
     function viewFeedback(id) {
-      window.location.href = '?id=' + id +
-        '&category=<?= $category_filter ?>&status=<?= $status_filter ?>&rating=<?= $rating_filter ?>&search=<?= urlencode($search_query) ?>';
+      // Highlight selected row
+      document.querySelectorAll('.feedback-row').forEach(r => r.classList.remove('selected'));
+      const row = document.querySelector(`tr[data-id="${id}"]`);
+      if (row) {
+        row.classList.add('selected');
+        // Scroll to the selected row
+        row.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }
+
+  // If the page was opened with ?debug=1, forward that to the endpoint so we can bypass role checks for testing
+  const debugFlag = window.location.search.indexOf('debug=1') !== -1 ? '&debug=1' : '';
+  fetch('get_feedback_detail.php?id=' + encodeURIComponent(id) + debugFlag, { credentials: 'same-origin' })
+        .then(r => {
+          // If HTTP error, read text and throw so catch() receives it
+          if (!r.ok) {
+            return r.text().then(text => { throw new Error('HTTP ' + r.status + ': ' + text); });
+          }
+          const ct = r.headers.get('content-type') || '';
+          if (ct.indexOf('application/json') === -1) {
+            return r.text().then(text => { throw new Error('Non-JSON response: ' + text); });
+          }
+          return r.json();
+        })
+        .then(resp => {
+          if (!resp || !resp.success) {
+            const msg = resp && resp.error ? resp.error : 'Unknown error from server';
+            alert('Failed to load feedback details: ' + msg);
+            return;
+          }
+
+          const d = resp.data;
+          const details = document.getElementById('feedback-details');
+
+          // Build stars for rating
+          const stars = (() => {
+            if (!d.rating) return 'Not rated';
+            let out = '';
+            for (let i = 1; i <= 5; i++) {
+              if (i <= d.rating) out += '<i class="fas fa-star"></i>';
+              else out += '<i class="far fa-star"></i>';
+            }
+            return out;
+          })();
+
+          // Build attachment links
+          let attachmentHtml = '–';
+          if (d.attachment) {
+            const ext = (d.attachment.split('.').pop() || '').toLowerCase();
+            attachmentHtml = `<a href="${d.attachment}" target="_blank" class="attachment-link"><i class="fas fa-file-download"></i> Download</a>`;
+            if (['jpg','jpeg','png','gif'].includes(ext)) {
+              attachmentHtml += ` <a href="#" onclick="previewImage('${d.attachment}'); return false;" class="preview-link"><i class="fas fa-eye"></i> Preview</a>`;
+            }
+          }
+
+          // Render HTML into details pane
+          details.innerHTML = `
+            <h3>Feedback Details</h3>
+            <p><strong>From:</strong> ${escapeHtml(d.full_name)} ${d.email ? '('+escapeHtml(d.email)+')' : ''}</p>
+            <p><strong>Category:</strong> ${escapeHtml(d.category ? d.category.replace(/_/g,' ') : '')}</p>
+            <p><strong>Rating:</strong> <span class="rating-stars">${stars}</span></p>
+            <p><strong>Submitted:</strong> ${escapeHtml(formatDateClient(d.timestamp))}</p>
+            <div class="feedback-content"><h4>Feedback:</h4><p>${nl2br(escapeHtml(d.message))}</p></div>
+            <p><strong>Attachment:</strong> ${attachmentHtml}</p>
+            ${d.work_experience ? `<div class="user-profile"><h4>User Profile</h4><p><strong>Work Experience:</strong> ${nl2br(escapeHtml(d.work_experience))}</p>${d.education ? `<p><strong>Education:</strong> ${nl2br(escapeHtml(d.education))}</p>` : ''}</div>` : (d.education ? `<div class="user-profile"><h4>User Profile</h4><p><strong>Education:</strong> ${nl2br(escapeHtml(d.education))}</p></div>` : '')}
+          `;
+
+          // If admin fields are present, append admin action form
+          if (typeof d.admin_notes !== 'undefined') {
+            // Use server-side pre-rendered admin options (JSON-encoded into a JS string)
+            const adminOptions = <?= json_encode($adminOptionsHtml) ?>;
+            // Append admin form (non-submitting; will submit via normal POST when used)
+            const adminForm = document.createElement('div');
+            adminForm.innerHTML = `<form method="POST" action="" class="admin-actions">` +
+              `<input type="hidden" name="feedback_id" value="${d.id}">` +
+              `<label for="admin_notes">Admin Notes:</label>` +
+              `<textarea name="admin_notes" id="admin_notes">${escapeHtml(d.admin_notes || '')}</textarea>` +
+              `<div class="action-row"><div class="action-group">` +
+              `<label for="new_status">Status:</label>` +
+              `<select name="new_status" id="new_status">` +
+                `<option value="new" ${d.status === 'new' ? 'selected' : ''}>New</option>` +
+                `<option value="in_progress" ${d.status === 'in_progress' ? 'selected' : ''}>In Progress</option>` +
+                `<option value="resolved" ${d.status === 'resolved' ? 'selected' : ''}>Resolved</option>` +
+              `</select>` +
+              `<button type="submit" name="update_status" class="status-btn">Update Status</button>` +
+              `</div>` +
+              `${d.assigned_to !== null ? '<div class="action-group"><label for="assigned_to">Assign To:</label><select name="assigned_to" id="assigned_to"><option value="">-- Select Admin --</option>' + adminOptions + '</select><button type="submit" name="assign_to" class="assign-btn">Assign</button></div>' : ''}` +
+              `</div></form>`;
+            details.appendChild(adminForm);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Error loading details: ' + (err && err.message ? err.message : String(err)));
+        });
+    }
+
+    // Utility: escape for HTML
+    function escapeHtml(str) {
+      if (!str && str !== 0) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Utility: convert newlines to <br>
+    function nl2br(str) {
+      return str.replace(/\n/g, '<br>');
+    }
+
+    // Format timestamp (server returns raw timestamp string)
+    function formatDateClient(v) {
+      if (!v) return '–';
+      const t = Date.parse(v);
+      if (isNaN(t)) return '–';
+      const d = new Date(t);
+      return d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: '2-digit' });
     }
 
     // Preview image attachment
@@ -508,18 +705,21 @@ foreach ($categories as $cat) {
       const id = urlParams.get('id');
 
       if (id) {
-        const selectedRow = document.querySelector(`tr[data-id="${id}"]`);
-        if (selectedRow) {
-          selectedRow.classList.add('selected');
-          // Scroll to the selected row
-          selectedRow.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-          });
-        }
+        // Automatically fetch and display details if ID is in URL
+        viewFeedback(id);
       }
     });
   </script>
+
+<?php
+// Pre-render admin options HTML for use in client-side JS (JSON-encoded)
+$adminOptionsHtml = '';
+if (!empty($admins) && is_array($admins)) {
+  foreach ($admins as $a) {
+    $adminOptionsHtml .= '<option value="' . htmlspecialchars($a['id']) . '">' . htmlspecialchars($a['full_name']) . '</option>';
+  }
+}
+?>
 
   <style>
     /* Added styles */
@@ -554,50 +754,70 @@ foreach ($categories as $cat) {
     /* Enhanced styles for table and details panel alignment */
     .main {
       display: grid;
-      grid-template-columns: 1fr 380px;
+      /* widen the details column so the panel has more room */
+      grid-template-columns: 1fr 480px;
       gap: 20px;
       align-items: start;
     }
 
+    /* Keep the table scrollable but use the viewport height so it fits nicel y
+       and doesn't force the details panel to be small. */
     .table-container {
-      height: 600px;
+      height: calc(100vh - 220px);
       overflow-y: auto;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
       background: white;
     }
 
+    /* Make the details panel expand naturally (no internal scroll). If the
+       content is taller than the viewport the whole page will scroll instead
+       of showing a nested scrollbar. Keep it sticky so it remains visible. */
     .details {
-      height: 600px;
-      overflow-y: auto;
+      height: auto;
+      overflow: visible;
       position: sticky;
       top: 20px;
     }
 
-    /* Consistent scrollbar styling */
-    .table-container::-webkit-scrollbar,
-    .details::-webkit-scrollbar {
+    /* Consistent scrollbar styling only for the table container (details now
+       won't show an internal scrollbar). */
+    .table-container::-webkit-scrollbar {
       width: 8px;
     }
 
-    .table-container::-webkit-scrollbar-track,
-    .details::-webkit-scrollbar-track {
+    .table-container::-webkit-scrollbar-track {
       background: #f1f1f1;
       border-radius: 4px;
     }
 
-    .table-container::-webkit-scrollbar-thumb,
-    .details::-webkit-scrollbar-thumb {
+    .table-container::-webkit-scrollbar-thumb {
       background: #c1c1c1;
       border-radius: 4px;
       border: 2px solid #f1f1f1;
     }
 
-    .table-container::-webkit-scrollbar-thumb:hover,
-    .details::-webkit-scrollbar-thumb:hover {
+    .table-container::-webkit-scrollbar-thumb:hover {
       background: #a1a1a1;
     }
+
+    /* Responsive: stack columns on narrow viewports */
+    @media (max-width: 900px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+      .details {
+        position: relative;
+        top: auto;
+      }
+      .table-container {
+        height: auto;
+      }
+    }
   </style>
+  <?php include '../scrolltop/scrolltop.php'; ?>
+  <?php include '../footer/footer.php'; ?>
+  <script src="../scrolltop/scrolltop.js"></script>
 </body>
 
 </html>

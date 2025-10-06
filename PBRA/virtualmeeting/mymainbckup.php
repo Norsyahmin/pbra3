@@ -14,7 +14,7 @@
 
 
 <body onload="fetchNotifications()">
-  <?php include '../includes/navbar.php'; ?>
+  <?php include __DIR__ . '/../navbar/navbar.php'; ?>
 
   <div class="page-title">
     <h1 style="font-size: 30px;">Virtual Meeting</h1>

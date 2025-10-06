@@ -61,9 +61,7 @@ if (isset($_SESSION['report_success']) && $_SESSION['report_success']) {
       Add to Favorite
     </button>
   </div>
-  <div class="breadcrumb">
-    <ul id="breadcrumb-list"></ul>
-  </div>
+  <!-- Breadcrumbs removed per request -->
 
   <div class="report-container" style="display: flex; gap: 20px; padding: 0 5%;">
     <div id="left-panel" style="flex: 1;">
@@ -229,89 +227,48 @@ if (isset($_SESSION['report_success']) && $_SESSION['report_success']) {
       cards.forEach(card => card.style.display = card.textContent.toLowerCase().includes(query) ? "block" : "none");
     });
 
-    //breadcrumbs
-    // Breadcrumbs
-    let breadcrumbs = JSON.parse(sessionStorage.getItem('breadcrumbs')) || [];
-    let currentPageUrl = window.location.pathname;
+    // Favorite button: initialize after DOM is ready and expose toggleFavorite globally
+    (function() {
+      const pageName = "<?php echo addslashes($page_name); ?>";
+      const pageUrl = "<?php echo addslashes($page_url); ?>";
 
-    // 🧠 Instead of hardcoding, get <title> automatically
-    let currentPageName = document.title.trim();
+      document.addEventListener('DOMContentLoaded', function() {
+        const button = document.getElementById('favoriteButton');
+        if (!button) return;
 
-    let pageExists = breadcrumbs.some(b => b.url === currentPageUrl);
+        // Check if already favorited when page loads
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        const exists = favorites.find(fav => fav.pageUrl === pageUrl || fav.pageName === pageName);
+        if (exists) {
+          button.classList.add('favorited');
+          button.textContent = 'Favorited';
+        }
 
-    if (!pageExists) {
-      breadcrumbs.push({
-        name: currentPageName,
-        url: currentPageUrl
+        // Expose global function for the inline onclick
+        window.toggleFavorite = function() {
+          let favoritesLocal = JSON.parse(localStorage.getItem('favorites') || '[]');
+
+          const idx = favoritesLocal.findIndex(fav => fav.pageUrl === pageUrl || fav.pageName === pageName);
+
+          if (idx === -1) {
+            favoritesLocal.push({ pageName: pageName, pageUrl: pageUrl });
+            button.classList.add('favorited');
+            button.textContent = 'Favorited';
+          } else {
+            favoritesLocal.splice(idx, 1);
+            button.classList.remove('favorited');
+            button.textContent = 'Add to Favorite';
+          }
+
+          localStorage.setItem('favorites', JSON.stringify(favoritesLocal));
+        };
       });
-      sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbs));
-    }
-
-    let breadcrumbList = document.getElementById('breadcrumb-list');
-    breadcrumbList.innerHTML = '';
-
-    breadcrumbs.forEach((breadcrumb, index) => {
-      let item = document.createElement('li');
-      let link = document.createElement('a');
-      link.href = breadcrumb.url;
-      link.textContent = breadcrumb.name;
-
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        breadcrumbs = breadcrumbs.slice(0, index + 1);
-        sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbs));
-        window.location.href = breadcrumb.url;
-      });
-
-      item.appendChild(link);
-      breadcrumbList.appendChild(item);
-
-      if (index < breadcrumbs.length - 1) {
-        let separator = document.createElement('span');
-        separator.textContent = ' > ';
-        breadcrumbList.appendChild(separator);
-      }
-    });
-
-    //favorite
-    const pageName = "<?php echo $page_name; ?>";
-    const pageUrl = "<?php echo $page_url; ?>";
-    const button = document.getElementById('favoriteButton');
-
-    // Check if already favorited when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const exists = favorites.find(fav => fav.pageName === pageName);
-      if (exists) {
-        button.classList.add('favorited');
-        button.textContent = 'Favorited';
-      }
-    });
-
-    function toggleFavorite() {
-      let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-
-      const index = favorites.findIndex(fav => fav.pageName === pageName);
-
-      if (index === -1) {
-        // Not favorited yet, add it
-        favorites.push({
-          pageName: pageName,
-          pageUrl: pageUrl
-        });
-        button.classList.add('favorited');
-        button.textContent = 'Favorited';
-      } else {
-        // Already favorited, remove it
-        favorites.splice(index, 1);
-        button.classList.remove('favorited');
-        button.textContent = 'Add to Favorite';
-      }
-
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-    }
+    })();
   </script>
 
+  <?php include '../scrolltop/scrolltop.php'; ?>
+  <?php include '../footer/footer.php'; ?>
+  <script src="../scrolltop/scrolltop.js"></script>
 </body>
 
 </html>

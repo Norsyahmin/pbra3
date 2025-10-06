@@ -317,82 +317,9 @@ footer p {
   font-size: 14px;
 }
 
-/* === NOTIFICATIONS === */
-.notification-container {
-  position: fixed;
-  /* ← fixed instead of absolute */
-  top: 72px;
-  /* right under navbar */
-  right: 0;
-  /* stick to the right edge */
-  width: 500px;
-  /* adjust width as you like */
-  height: calc(100% - 60px);
-  /* full height minus navbar height */
-  background: white;
-  border-left: 1px solid #ddd;
-  /* only left border like sidebar */
-  border-top: none;
-  border-bottom: none;
-  border-right: none;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
-  /* shadow from left */
-  z-index: 9999;
-  display: none;
-  overflow-y: auto;
-  border-radius: 0;
-  /* make it square like sidebar */
-}
-
-.notification-btn {
-  position: relative;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: white;
-  cursor: pointer;
-}
-
-.notification-dot {
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  background: red;
-  color: white;
-  font-size: 12px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  text-align: center;
-  display: none;
-}
-
-.notification-header {
-  background: #174080;
-  color: white;
-  padding: 10px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.notification-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  overflow-y: auto;
-  color: black;
-  max-height: unset;
-}
-
-.notification-list li {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
-}
-
-.notification-list li:last-child {
-  border-bottom: none;
-}
+/* === HOMEPAGE SPECIFIC NOTIFICATIONS (REMOVED TO PREVENT CONFLICTS) === */
+/* Notification styles moved to navbar.css to avoid conflicts */
+/* If homepage needs specific notification styling, use more specific selectors */
 
 /* === USER INFO === */
 .user-info {
@@ -525,11 +452,7 @@ footer p {
     top: 55px;
   }
 
-  .notification-container {
-    width: 100%;
-    height: auto;
-    top: 65px;
-  }
+  /* Notification container styles removed to prevent conflicts with navbar */
 }
 
 /* Tablets (768px - 1023px) */
@@ -564,11 +487,7 @@ footer p {
     top: 60px;
   }
 
-  .notification-container {
-    width: 80%;
-    right: 10%;
-    top: 65px;
-  }
+  /* Notification container styles removed to prevent conflicts with navbar */
 }
 
 /* Small Laptops (1024px - 1439px) */
@@ -581,9 +500,7 @@ footer p {
     font-size: 1rem;
   }
 
-  .notification-container {
-    width: 400px;
-  }
+  /* Notification container styles removed to prevent conflicts with navbar */
 }
 
 /* Big Screens (1440px and above) */
@@ -592,10 +509,9 @@ footer p {
     width: 300px;
   }
 
-  .notification-container {
-    width: 500px;
-  }
+  /* Notification container styles removed to prevent conflicts with navbar */
 }
+
 
 /* Styles for the logout button at bottom of sidebar */
 .sidebar-footer {

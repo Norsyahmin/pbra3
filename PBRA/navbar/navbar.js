@@ -4,7 +4,10 @@ const navBar = (function () {
     const sidebar = document.getElementById("sidebar");
     const sidebarOverlay = document.getElementById("sidebarOverlay");
     const topbar = document.getElementById("topbar");
-    const content = document.getElementById("content");
+    // Primary content container used for applying the blurred class. Some pages
+    // didn't include #content (older pages use .content-body or .main), so try
+    // sensible fallbacks to keep blur behavior consistent across the site.
+    const content = document.getElementById("content") || document.querySelector('.content-body') || document.querySelector('.main') || null;
     const searchOverlay = document.getElementById("searchOverlay");
     const popupSearch = document.getElementById("popupSearch");
     const topSearch = document.getElementById("topSearch");
@@ -31,9 +34,9 @@ const navBar = (function () {
 
     // Open search
     function openSearch() {
-        if (!searchOverlay || !content || !popupSearch) return;
+        if (!searchOverlay || !popupSearch) return;
         searchOverlay.classList.add("active");
-        content.classList.add("blurred");
+        if (content) content.classList.add("blurred");
         setTimeout(() => popupSearch.focus(), 100);
     }
 
@@ -118,9 +121,14 @@ function _resolveNotificationsUrl() {
         const script = Array.from(document.getElementsByTagName('script')).find(s => s.src && s.src.indexOf('navbar.js') !== -1);
         const base = script ? new URL(script.src, location.href).href.replace(/\/navbar\/navbar\.js(?:\?.*)?$/, '/') : location.href;
         // notification endpoint relative to the navbar directory
-        return new URL('../homepage/process_notification.php', base).href;
+        const url = new URL('../homepage/process_notification.php', base).href;
+        console.log('Resolved notification URL:', url);
+        return url;
     } catch (e) {
-        return '../homepage/process_notification.php';
+        console.error('URL resolution error:', e);
+        const fallbackUrl = '../homepage/process_notification.php';
+        console.log('Using fallback notification URL:', fallbackUrl);
+        return fallbackUrl;
     }
 }
 
@@ -128,17 +136,40 @@ async function fetchNotifications() {
     const url = _resolveNotificationsUrl();
     let data;
     try {
-        const res = await fetch(url, { cache: 'no-store', credentials: 'same-origin' });
+        const res = await fetch(url, {
+            cache: 'no-store',
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
         if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
-        data = await res.json();
+        const responseText = await res.text();
+
+        // Try to parse as JSON
+        try {
+            data = JSON.parse(responseText);
+        } catch (parseError) {
+            console.error('Invalid JSON response:', responseText);
+            throw new Error('Server returned invalid JSON');
+        }
     } catch (err) {
         console.error('Failed to load notifications:', err);
+        // Show error in notification list
+        const notificationList = document.getElementById('notification-list');
+        if (notificationList) {
+            notificationList.innerHTML = '<li style="color: #dc3545;">Failed to load notifications</li>';
+        }
         return;
     }
 
     const notificationList = document.getElementById('notification-list');
     const notificationDot = document.getElementById('notification-dot');
-    if (!notificationList || !notificationDot) return;
+    if (!notificationList || !notificationDot) {
+        console.error('Notification elements not found in DOM');
+        return;
+    }
 
     // clear existing items but preserve header and layout
     notificationList.innerHTML = '';
@@ -155,6 +186,8 @@ async function fetchNotifications() {
     if (list.length === 0) {
         const li = document.createElement('li');
         li.textContent = 'No new notifications';
+        li.style.color = '#6c757d';
+        li.style.fontStyle = 'italic';
         notificationList.appendChild(li);
         return;
     }
@@ -166,15 +199,15 @@ async function fetchNotifications() {
         const message = n.message || n.msg || n.text || '';
         const time = n.time || n.created_at || '';
 
-        if (n.url) {
+        if (n.url && n.url !== '#') {
             const a = document.createElement('a');
             a.href = n.url;
             a.style.textDecoration = 'none';
             a.style.color = 'inherit';
-            a.innerHTML = `${message} <br><small style="color:#666">${time}</small>`;
+            a.innerHTML = `${message} ${time ? `<br><small style="color:#666">${time}</small>` : ''}`;
             li.appendChild(a);
         } else {
-            li.innerHTML = `${message} <br><small style="color:#666">${time}</small>`;
+            li.innerHTML = `${message} ${time ? `<br><small style="color:#666">${time}</small>` : ''}`;
         }
 
         notificationList.appendChild(li);
@@ -212,16 +245,34 @@ document.addEventListener('click', function (event) {
 // Toggle and fetch when opened
 function toggleNotifications() {
     const container = document.getElementById('notification-container');
-    if (!container) return;
+    const button = document.querySelector('.notification-btn');
+
+    if (!container) {
+        console.error('Notification container not found');
+        return;
+    }
+
     const isOpen = container.style.display === 'block';
     if (isOpen) {
         container.style.display = 'none';
+        if (button) button.setAttribute('aria-expanded', 'false');
     } else {
         container.style.display = 'block';
+        if (button) button.setAttribute('aria-expanded', 'true');
+
+        // Add loading indicator
+        const notificationList = document.getElementById('notification-list');
+        if (notificationList) {
+            notificationList.innerHTML = '<li style="color: #6c757d; font-style: italic;">Loading notifications...</li>';
+        }
+
         // fetch latest notifications and mark them read in the background
-        fetchNotifications();
-        // mark as read shortly after opening (non-blocking)
-        setTimeout(() => markNotificationsRead(), 400);
+        fetchNotifications().then(() => {
+            // mark as read shortly after opening (non-blocking)
+            setTimeout(() => markNotificationsRead(), 400);
+        }).catch(err => {
+            console.error('Error in notification flow:', err);
+        });
     }
 }
 
@@ -436,4 +487,21 @@ if (document.readyState === "loading") {
 } else {
     initializeSearch();
 }
+
+// Initialize notifications on page load
+document.addEventListener('DOMContentLoaded', function () {
+    // Check if notification elements exist
+    const notificationBtn = document.querySelector('.notification-btn');
+    const notificationContainer = document.getElementById('notification-container');
+
+    if (notificationBtn && notificationContainer) {
+        console.log('Notification system initialized');
+
+        // Pre-fetch notification count on page load (optional)
+        // Uncomment if you want to update the count immediately on page load
+        // fetchNotifications();
+    } else {
+        console.warn('Notification elements not found on page');
+    }
+});
 

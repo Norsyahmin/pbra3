@@ -10,7 +10,7 @@
 </head>
 
 <body onload="loadHistoryMeetings()">
-  <?php include '../includes/navbar.php';
+  <?php include __DIR__ . '/../navbar/navbar.php';
 
   $is_admin = false;
   if (isset($_SESSION['id'])) {

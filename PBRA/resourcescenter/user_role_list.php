@@ -45,14 +45,11 @@ $stmt->close();
 
     <div class="page-title" style="padding: 20px 5%;">
         <h1>Your Role Resources</h1>
-        <button type="button" id="favoriteButton" class="favorite-button" onclick="toggleFavorite()">
-            Add to Favorite
-        </button>
+    </div>
+        <!-- Favorite button removed -->
     </div>
 
-    <div class="breadcrumb">
-        <ul id="breadcrumb-list"></ul>
-    </div>
+    <!-- Breadcrumb removed -->
 
     <div class="feature-description">
         <p>To view the resources you will have to choose which one you have to access to. Each role has different and unique resources</p>
@@ -67,7 +64,7 @@ $stmt->close();
                 <div class="role-box">
                     <h3><?= htmlspecialchars($row['role_name']) ?></h3>
                     <p>Department: <?= htmlspecialchars($row['dept_name']) ?></p>
-                    <form action="/pbra_website/resourcescenter/role_resources.php" method="get" style="margin-top: 10px;">
+                    <form action="role_resources.php" method="get" style="margin-top: 10px;">
                         <input type="hidden" name="role_id" value="<?= htmlspecialchars($row['id']) ?>">
                         <button type="submit" class="role-btn">🔍 View Resources</button>
                     </form>
@@ -77,90 +74,7 @@ $stmt->close();
         <?php endif; ?>
     </div>
 
-    <script>
-        //Breadcrumb
-        // Breadcrumbs
-        let breadcrumbs = JSON.parse(sessionStorage.getItem('breadcrumbs')) || [];
-        let currentPageUrl = window.location.pathname;
-
-        // 🧠 Instead of hardcoding, get <title> automatically
-        let currentPageName = document.title.trim();
-
-        let pageExists = breadcrumbs.some(b => b.url === currentPageUrl);
-
-        if (!pageExists) {
-            breadcrumbs.push({
-                name: currentPageName,
-                url: currentPageUrl
-            });
-            sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbs));
-        }
-
-        let breadcrumbList = document.getElementById('breadcrumb-list');
-        breadcrumbList.innerHTML = '';
-
-        breadcrumbs.forEach((breadcrumb, index) => {
-            let item = document.createElement('li');
-            let link = document.createElement('a');
-            link.href = breadcrumb.url;
-            link.textContent = breadcrumb.name;
-
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                breadcrumbs = breadcrumbs.slice(0, index + 1);
-                sessionStorage.setItem('breadcrumbs', JSON.stringify(breadcrumbs));
-                window.location.href = breadcrumb.url;
-            });
-
-            item.appendChild(link);
-            breadcrumbList.appendChild(item);
-
-            if (index < breadcrumbs.length - 1) {
-                let separator = document.createElement('span');
-                separator.textContent = ' > ';
-                breadcrumbList.appendChild(separator);
-            }
-        });
-
-
-        //favorite
-        const pageName = "<?php echo $page_name; ?>";
-        const pageUrl = "<?php echo $page_url; ?>";
-        const button = document.getElementById('favoriteButton');
-
-        // Check if already favorited when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-            const exists = favorites.find(fav => fav.pageName === pageName);
-            if (exists) {
-                button.classList.add('favorited');
-                button.textContent = 'Favorited';
-            }
-        });
-
-        function toggleFavorite() {
-            let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-
-            const index = favorites.findIndex(fav => fav.pageName === pageName);
-
-            if (index === -1) {
-                // Not favorited yet, add it
-                favorites.push({
-                    pageName: pageName,
-                    pageUrl: pageUrl
-                });
-                button.classList.add('favorited');
-                button.textContent = 'Favorited';
-            } else {
-                // Already favorited, remove it
-                favorites.splice(index, 1);
-                button.classList.remove('favorited');
-                button.textContent = 'Add to Favorite';
-            }
-
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-        }
-    </script>
+    <!-- Breadcrumb and favorite scripts removed -->
 
 </body>
 

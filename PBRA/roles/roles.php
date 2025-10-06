@@ -37,13 +37,6 @@ $stmt->close();
 <body onload="fetchNotifications()">
   <div class="page-title">
     <h1 style="font-size: 30px;">ROLES</h1>
-    <button type="button" id="favoriteButton" class="favorite-button" onclick="toggleFavorite()">
-      Add to Favorite
-    </button>
-  </div>
-
-  <div class="breadcrumb">
-    <ul id="breadcrumb-list"></ul>
   </div>
 
   <div class="content">
@@ -61,80 +54,10 @@ $stmt->close();
       </li>
 
       <?php if ($user_type === 'admin'): ?>
-        <li>
-          <div class="container" onclick="window.location.href='../appoint_roles/approle.php?type=admin';" style="cursor: pointer;">
-            <a href="#">
-              <div class="folder-icon"><i class="fas fa-folder-open"></i></div>
-              <div class="text">
-                <h1>Appoint Roles (admin)</h1>
-                <p>Admin can appoint roles to regular users not super_admin. Admin can also appoint multiple roles to the users.</p>
-              </div>
-            </a>
-          </div>
-        </li>
-
-        <li>
-          <div class="container" onclick="window.location.href='../distributetask/distributetask.php';" style="cursor: pointer;">
-            <a href="#">
-              <div class="folder-icon"><i class="fas fa-folder-open"></i></div>
-              <div class="text">
-                <h1>Distribute Task</h1>
-                <p>Capable of assigning any task to others and automatically updating it in their calendars.</p>
-              </div>
-            </a>
-          </div>
-        </li>
       <?php endif; ?>
 
       <?php if ($user_type === 'super_admin'): ?>
-        <li>
-          <div class="container" onclick="window.location.href='../appoint_roles/approle.php?type=admin';" style="cursor: pointer;">
-            <a href="#">
-              <div class="folder-icon"><i class="fas fa-folder-open"></i></div>
-              <div class="text">
-                <h1>Appoint Roles (admin)</h1>
-                <p>Admin can appoint roles to regular users not super_admin. Admin can also appoint multiple roles to the users.</p>
-              </div>
-            </a>
-          </div>
-        </li>
-
-        <li>
-          <div class="container" onclick="window.location.href='../appoint_roles/approle.php?type=super_admin';" style="cursor: pointer;">
-            <a href="#">
-              <div class="folder-icon"><i class="fas fa-folder-open"></i></div>
-              <div class="text">
-                <h1>Appoint Roles (super_admin)</h1>
-                <p>Super_admin can appoint roles to regular/admin users. Can appoint multiple roles to the users. Give feedback about the request approval.</p>
-              </div>
-            </a>
-          </div>
-        </li>
-
-        <li>
-          <div class="container" onclick="window.location.href='../distributetask/distributetask.php';" style="cursor: pointer;">
-            <a href="#">
-              <div class="folder-icon"><i class="fas fa-folder-open"></i></div>
-              <div class="text">
-                <h1>Distribute Task</h1>
-                <p>Capable of assigning any task to others and automatically updating it in their calendars.</p>
-              </div>
-            </a>
-          </div>
-        </li>
       <?php endif; ?>
-
-      <li>
-        <div class="container" onclick="window.location.href='../kpi/kpi.php';" style="cursor: pointer;">
-          <a href="#">
-            <div class="folder-icon"><i class="fas fa-chart-bar"></i></div>
-            <div class="text">
-              <h1>Individual Role-Level KPI</h1>
-              <p>Track and measure your performance against key performance indicators specific to your assigned roles.</p>
-            </div>
-          </a>
-        </div>
-      </li>
 
       <li>
         <div class="container" onclick="window.location.href='../roles/role_appeals.php';" style="cursor: pointer;">
@@ -193,92 +116,6 @@ $stmt->close();
   </div>
 
   <?php include '../footer/footer.php'; ?>
-
-  <script>
-    // Set breadcrumb
-    document.getElementById('breadcrumb-list').innerHTML = '<li><a href="../dashboard_template/dashboard.php">Dashboard</a></li><li>Roles</li>';
-
-    function toggleFavorite() {
-      const button = document.getElementById('favoriteButton');
-      let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-
-      const currentPage = {
-        name: '<?= $page_name ?>',
-        url: '<?= $page_url ?>'
-      };
-
-      const index = favorites.findIndex(fav => fav.url === currentPage.url);
-
-      if (index === -1) {
-        // Not favorited yet, add it
-        favorites.push(currentPage);
-
-        // Show success message
-        showSuccessMessage('Added to favorites!');
-
-        localStorage.setItem('favorites', JSON.stringify(favorites));
-
-        // Optional: Send to server
-        fetch('../includes/favorite.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(currentPage)
-        }).catch(error => {
-          console.warn('Failed to save favorite to server:', error);
-        });
-        button.classList.add('favorited');
-        button.textContent = 'Favorited';
-      } else {
-        // Already favorited, remove it
-        favorites.splice(index, 1);
-        showSuccessMessage('Removed from favorites!');
-        localStorage.setItem('favorites', JSON.stringify(favorites));
-        button.classList.remove('favorited');
-        button.textContent = 'Add to Favorite';
-      }
-    }
-
-    function showSuccessMessage(message) {
-      // Create a temporary notification
-      const notification = document.createElement('div');
-      notification.className = 'success-notification';
-      notification.textContent = message;
-      notification.style.cssText = `
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: #28a745;
-        color: white;
-        padding: 15px 20px;
-        border-radius: 5px;
-        z-index: 1000;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      `;
-
-      document.body.appendChild(notification);
-
-      // Remove after 3 seconds
-      setTimeout(() => {
-        notification.remove();
-      }, 3000);
-    }
-
-    // Check if current page is favorited on load
-    document.addEventListener('DOMContentLoaded', function() {
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const currentUrl = '<?= $page_url ?>';
-
-      if (favorites.some(fav => fav.url === currentUrl)) {
-        const button = document.getElementById('favoriteButton');
-        button.classList.add('favorited');
-        button.textContent = 'Favorited';
-      }
-
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-    });
-  </script>
 
 </body>
 

@@ -8,8 +8,8 @@ $role_id = $_GET['role_id'] ?? $_POST['role_id'] ?? null;
 
 // 🔁 Redirect if no role selected
 if (!$role_id) {
-    header("Location: ../resourcescenter/user_role_list.php");
-
+    // Redirect back to the role selection page (relative path keeps it working in different host roots)
+    header("Location: user_role_list.php");
     exit();
 }
 

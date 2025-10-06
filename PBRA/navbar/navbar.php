@@ -20,24 +20,36 @@ $profile_pic = (!empty($_SESSION['profile_pic']) && file_exists('../' . $_SESSIO
 include '../mypbra_connect.php'; // Fixed path for DB connection
 
 // Get logged-in user information
-$logged_in_user = $_SESSION['full_name'];
+$logged_in_user = $_SESSION['full_name'] ?? 'Unknown User';
 
-// Fetch unread notifications
-$sql = "SELECT message, url FROM notifications WHERE user_id=? AND is_read=FALSE ORDER BY created_at DESC";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $logged_in_user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-// Store notifications in an array
+// Fetch unread notifications with improved error handling
 $notifications = [];
-while ($row = $result->fetch_assoc()) {
-    $notifications[] = [
-        'message' => htmlspecialchars($row['message']),
-        'url' => $row['url']
-    ];
-}
+$unread_count = 0;
 
+if ($logged_in_user_id) {
+    try {
+        $sql = "SELECT message, url FROM notifications WHERE user_id=? AND (is_read=FALSE OR is_read=0) ORDER BY created_at DESC LIMIT 10";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("i", $logged_in_user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            // Store notifications in an array
+            while ($row = $result->fetch_assoc()) {
+                $notifications[] = [
+                    'message' => htmlspecialchars($row['message']),
+                    'url' => htmlspecialchars($row['url'] ?? '#')
+                ];
+            }
+            $stmt->close();
+        } else {
+            error_log("Failed to prepare notification query: " . $conn->error);
+        }
+    } catch (Exception $e) {
+        error_log("Error fetching notifications: " . $e->getMessage());
+    }
+}
 
 // Count unread notifications
 $unread_count = count($notifications);
@@ -97,6 +109,12 @@ $unread_count = count($notifications);
                         <i class="fas fa-envelope" aria-hidden="true"></i>
                     </button>
                 </div>
+                <!-- Chat button -->
+                <div class="chat-button-container">
+                    <button class="chat-button" onclick="window.location.href='../chat/chat.php';" style="cursor: pointer;" aria-label="Chat" title="Chat">
+                        <i class="fas fa-comments" aria-hidden="true"></i>
+                    </button>
+                </div>
 
                 <!-- moved user-info inside topbar-right so icons appear directly left of profile -->
                 <div class="user-info">
@@ -115,6 +133,7 @@ $unread_count = count($notifications);
         <div id="sidebar" class="sidebar">
             <span class="closebtn" onclick="navBar.closeSidebar()">&times;</span>
             <a href="../homepage/homepage.php">Home</a>
+            <a href="../myrole/myrole.php">Activity Logs</a>
             <a href="../task_management/task_management.php">Task Management</a>
             <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'super_admin') { ?>
                 <a href="../statistics/statistics.php">Statistics</a>
@@ -122,9 +141,6 @@ $unread_count = count($notifications);
             <?php if (isset($_SESSION['user_type']) && ($_SESSION['user_type'] === 'admin' || $_SESSION['user_type'] === 'super_admin')) { ?>
                 <a href="../registration/registration.php">Register User</a>
             <?php } ?>
-            <a href="../feedback/feedback.php">Feedback</a>
-            <a href="../report/report.php">Report</a>
-            <a href="../usersupport/usersupport.php">User Support</a>
             <a href="../virtualmeeting/virtualmeeting.php">Virtual Meeting</a>
             <?php if (isset($_SESSION['user_type']) && ($_SESSION['user_type'] === 'admin' || $_SESSION['user_type'] === 'super_admin')) { ?>
                 <a href="../appoint_roles/approle.php">Appoint Roles</a>

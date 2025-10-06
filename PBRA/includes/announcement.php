@@ -2,7 +2,17 @@
 if (session_status() === PHP_SESSION_NONE) {
   require_once __DIR__ . '/auth.php';
 }
-include '../mypbra_connect.php';
+
+// Include database connection with error handling
+try {
+  include '../mypbra_connect.php';
+  if (!isset($conn) || $conn->connect_error) {
+    throw new Exception("Database connection failed: " . ($conn->connect_error ?? "Unknown error"));
+  }
+} catch (Exception $e) {
+  error_log("Announcement page database error: " . $e->getMessage());
+  die("Database connection error. Please try again later.");
+}
 
 $is_admin = false;
 if (isset($_SESSION['id'])) {
@@ -11,7 +21,7 @@ if (isset($_SESSION['id'])) {
   $stmt->bind_param("i", $user_id);
   $stmt->execute();
   $stmt->bind_result($user_type);
-  if ($stmt->fetch() && $user_type === 'admin') {
+  if ($stmt->fetch() && ($user_type === 'admin' || $user_type === 'super_admin')) {
     $is_admin = true;
   }
   $stmt->close();
@@ -37,13 +47,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_admin && isset($_POST['submit_a
 
   if (!empty($title) && !empty($content)) {
     $stmt = $conn->prepare("INSERT INTO announcement (title, content, image_path, created_at) VALUES (?, ?, ?, NOW())");
-    $stmt->bind_param("sss", $title, $content, $imagePath);
-    $stmt->execute();
-    $stmt->close();
-
-    // Use JavaScript redirect instead of header()
-    echo "<script>window.location.href = '" . $_SERVER['PHP_SELF'] . "';</script>";
-    exit();
+    if ($stmt) {
+      $stmt->bind_param("sss", $title, $content, $imagePath);
+      $success = $stmt->execute();
+      $stmt->close();
+      
+      if ($success) {
+        // Use JavaScript redirect instead of header()
+        echo "<script>window.location.href = '" . $_SERVER['PHP_SELF'] . "';</script>";
+        exit();
+      } else {
+        error_log("Failed to insert announcement: " . $conn->error);
+      }
+    } else {
+      error_log("Failed to prepare announcement insert statement: " . $conn->error);
+    }
   }
 }
 
@@ -53,42 +71,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_admin && isset($_POST['delete_i
 
   // First, get the image path before deleting the record
   $stmt = $conn->prepare("SELECT image_path FROM announcement WHERE id = ?");
-  $stmt->bind_param("i", $idToDelete);
-  $stmt->execute();
-  $stmt->bind_result($imagePath);
-  $stmt->fetch();
-  $stmt->close();
+  if ($stmt) {
+    $stmt->bind_param("i", $idToDelete);
+    $stmt->execute();
+    $stmt->bind_result($imagePath);
+    $stmt->fetch();
+    $stmt->close();
 
-  // Delete the physical image file if it exists
-  if (!empty($imagePath)) {
-    $fullImagePath = '../' . $imagePath;
-    if (file_exists($fullImagePath)) {
-      if (!unlink($fullImagePath)) {
-        // Log error but continue with database deletion
-        error_log("Failed to delete image file: " . $fullImagePath);
+    // Delete the physical image file if it exists
+    if (!empty($imagePath)) {
+      $fullImagePath = '../' . $imagePath;
+      if (file_exists($fullImagePath)) {
+        if (!unlink($fullImagePath)) {
+          // Log error but continue with database deletion
+          error_log("Failed to delete image file: " . $fullImagePath);
+        }
       }
     }
+
+    // Then delete the database record
+    $stmt = $conn->prepare("DELETE FROM announcement WHERE id = ?");
+    if ($stmt) {
+      $stmt->bind_param("i", $idToDelete);
+      $success = $stmt->execute();
+      $stmt->close();
+      
+      if ($success) {
+        // Use JavaScript redirect instead of header()
+        echo "<script>window.location.href = '" . $_SERVER['PHP_SELF'] . "';</script>";
+        exit();
+      } else {
+        error_log("Failed to delete announcement: " . $conn->error);
+      }
+    } else {
+      error_log("Failed to prepare delete statement: " . $conn->error);
+    }
+  } else {
+    error_log("Failed to prepare select statement for image path: " . $conn->error);
   }
-
-  // Then delete the database record
-  $stmt = $conn->prepare("DELETE FROM announcement WHERE id = ?");
-  $stmt->bind_param("i", $idToDelete);
-  $stmt->execute();
-  $stmt->close();
-
-  // Use JavaScript redirect instead of header()
-  echo "<script>window.location.href = '" . $_SERVER['PHP_SELF'] . "';</script>";
-  exit();
 }
 
 $announcements = [];
 $result = $conn->query("SELECT * FROM announcement ORDER BY created_at DESC LIMIT 10");
-while ($row = $result->fetch_assoc()) {
-  $announcements[] = $row;
+if ($result) {
+  while ($row = $result->fetch_assoc()) {
+    $announcements[] = $row;
+  }
+} else {
+  error_log("Failed to fetch announcements: " . $conn->error);
 }
 ?>
 
 <link rel="stylesheet" href="../includes/announcement.css">
+<!-- Debug script - remove in production -->
+<script src="../includes/announcement_debug.js"></script>
 
 <div class="announcement-carousel">
   <div class="announcement-header">
@@ -101,27 +137,44 @@ while ($row = $result->fetch_assoc()) {
   <div class="carousel-wrapper">
     <button class="carousel-btn left" onclick="moveSlide(-1)"></button>
     <div class="carousel-track">
-      <?php foreach ($announcements as $a): ?>
+      <?php if (empty($announcements)): ?>
         <div class="announcement-slide">
-          <h3><?= htmlspecialchars($a['title']) ?></h3>
-          <?php if (!empty($a['image_path'])): ?>
-            <img src="../<?= htmlspecialchars($a['image_path']) ?>" alt="announcement image">
-          <?php endif; ?>
-          <div class="desc"><?= html_entity_decode($a['content']) ?></div>
-          <?php if ($is_admin): ?>
-            <form method="POST" class="delete-form" data-id="<?= $a['id'] ?>">
-              <button type="button" class="delete-btn" onclick="openDeleteModal(this)">🗑 Delete</button>
-            </form>
-          <?php endif; ?>
+          <h3>No Announcements Available</h3>
+          <div class="desc">There are currently no announcements to display.</div>
         </div>
-      <?php endforeach; ?>
+      <?php else: ?>
+        <?php foreach ($announcements as $a): ?>
+          <div class="announcement-slide">
+            <h3><?= htmlspecialchars($a['title']) ?></h3>
+            <?php if (!empty($a['image_path'])): ?>
+              <?php 
+              // Ensure proper path resolution
+              $imagePath = $a['image_path'];
+              // Remove leading '../' if present to avoid double path issues
+              $imagePath = ltrim($imagePath, './');
+              // Add the correct relative path from the current location
+              $fullImagePath = '../' . $imagePath;
+              ?>
+              <img src="<?= htmlspecialchars($fullImagePath) ?>" alt="announcement image" onerror="this.style.display='none'">
+            <?php endif; ?>
+            <div class="desc"><?= html_entity_decode($a['content']) ?></div>
+            <?php if ($is_admin): ?>
+              <form method="POST" class="delete-form" data-id="<?= $a['id'] ?>">
+                <button type="button" class="delete-btn" onclick="openDeleteModal(this)">🗑 Delete</button>
+              </form>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </div>
     <button class="carousel-btn right" onclick="moveSlide(1)"></button>
   </div>
   <div class="carousel-dots">
-    <?php foreach ($announcements as $index => $a): ?>
-      <span class="dot <?= $index === 0 ? 'active' : '' ?>" onclick="jumpToSlide(<?= $index ?>)"></span>
-    <?php endforeach; ?>
+    <?php if (!empty($announcements)): ?>
+      <?php foreach ($announcements as $index => $a): ?>
+        <span class="dot <?= $index === 0 ? 'active' : '' ?>" onclick="jumpToSlide(<?= $index ?>)"></span>
+      <?php endforeach; ?>
+    <?php endif; ?>
   </div>
 
 </div>
@@ -174,42 +227,61 @@ while ($row = $result->fetch_assoc()) {
 
 
 <script>
-  let currentIndex = 0;
+  let announcementCurrentIndex = 0;
 
   function moveSlide(dir) {
     const slides = document.querySelectorAll('.announcement-slide');
     if (slides.length === 0) return;
-    currentIndex += dir;
-    if (currentIndex < 0) currentIndex = slides.length - 1;
-    if (currentIndex >= slides.length) currentIndex = 0;
+    
+    announcementCurrentIndex += dir;
+    if (announcementCurrentIndex < 0) announcementCurrentIndex = slides.length - 1;
+    if (announcementCurrentIndex >= slides.length) announcementCurrentIndex = 0;
+    
     const track = document.querySelector('.carousel-track');
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+    if (track) {
+      track.style.transform = `translateX(-${announcementCurrentIndex * 100}%)`;
+      updateAnnouncementDots();
+    }
   }
 
   function openModal() {
-    document.getElementById('announcementModal').style.display = 'block';
+    const modal = document.getElementById('announcementModal');
+    if (modal) {
+      modal.style.display = 'block';
+    }
   }
 
   function closeModal() {
-    document.getElementById('announcementModal').style.display = 'none';
+    const modal = document.getElementById('announcementModal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
   }
 
   function openDeleteModal(btn) {
     const form = btn.closest('.delete-form');
     const id = form.getAttribute('data-id');
-    document.getElementById('delete_id').value = id;
-    document.getElementById('deleteModal').style.display = 'flex';
+    const deleteIdInput = document.getElementById('delete_id');
+    const deleteModal = document.getElementById('deleteModal');
+    
+    if (deleteIdInput && deleteModal) {
+      deleteIdInput.value = id;
+      deleteModal.style.display = 'flex';
+    }
   }
 
   function closeDeleteModal() {
-    document.getElementById('deleteModal').style.display = 'none';
+    const deleteModal = document.getElementById('deleteModal');
+    if (deleteModal) {
+      deleteModal.style.display = 'none';
+    }
   }
 
   window.onclick = function(event) {
     const delModal = document.getElementById('deleteModal');
     const addModal = document.getElementById('announcementModal');
-    if (event.target === delModal) closeDeleteModal();
-    if (event.target === addModal) closeModal();
+    if (delModal && event.target === delModal) closeDeleteModal();
+    if (addModal && event.target === addModal) closeModal();
   }
 
   function formatText(command) {
@@ -217,30 +289,62 @@ while ($row = $result->fetch_assoc()) {
   }
 
   function prepareContent() {
-    const richContent = document.getElementById('richContent').innerHTML;
-    document.getElementById('hiddenContent').value = richContent;
+    const richContent = document.getElementById('richContent');
+    const hiddenContent = document.getElementById('hiddenContent');
+    if (richContent && hiddenContent) {
+      hiddenContent.value = richContent.innerHTML;
+    }
   }
-  //dot logic
-  function updateDots() {
+
+  function updateAnnouncementDots() {
     const dots = document.querySelectorAll('.carousel-dots .dot');
     dots.forEach((dot, i) => {
-      dot.classList.toggle('active', i === currentIndex);
+      dot.classList.toggle('active', i === announcementCurrentIndex);
     });
   }
 
-  function moveSlide(dir) {
-    const slides = document.querySelectorAll('.announcement-slide');
-    if (slides.length === 0) return;
-    currentIndex += dir;
-    if (currentIndex < 0) currentIndex = slides.length - 1;
-    if (currentIndex >= slides.length) currentIndex = 0;
-    document.querySelector('.carousel-track').style.transform = `translateX(-${currentIndex * 100}%)`;
-    updateDots();
+  function jumpToSlide(index) {
+    announcementCurrentIndex = index;
+    const track = document.querySelector('.carousel-track');
+    if (track) {
+      track.style.transform = `translateX(-${announcementCurrentIndex * 100}%)`;
+      updateAnnouncementDots();
+    }
   }
 
-  function jumpToSlide(index) {
-    currentIndex = index;
-    document.querySelector('.carousel-track').style.transform = `translateX(-${currentIndex * 100}%)`;
-    updateDots();
-  }
+  // Initialize carousel on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing announcement carousel...');
+    
+    // Check if we have announcements
+    const slides = document.querySelectorAll('.announcement-slide');
+    console.log('Found', slides.length, 'announcement slides');
+    
+    if (slides.length > 0) {
+      updateAnnouncementDots();
+      
+      // Set up auto-rotation if there are multiple slides
+      if (slides.length > 1) {
+        setInterval(function() {
+          moveSlide(1);
+        }, 5000); // Auto-advance every 5 seconds
+      }
+    }
+    
+    // Test image loading
+    const images = document.querySelectorAll('.announcement-slide img');
+    images.forEach((img, index) => {
+      if (img.src) {
+        const testImg = new Image();
+        testImg.onload = function() {
+          console.log(`Announcement image ${index + 1} loaded successfully`);
+        };
+        testImg.onerror = function() {
+          console.error(`Announcement image ${index + 1} failed to load:`, img.src);
+          img.style.display = 'none';
+        };
+        testImg.src = img.src;
+      }
+    });
+  });
 </script>

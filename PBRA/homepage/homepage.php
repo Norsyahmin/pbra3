@@ -73,7 +73,7 @@ if (!$result) {
 <body>
     <?php include __DIR__ . '/../navbar/navbar.php'; ?>
 
-    <div class="content-body">
+    <div id="content" class="content-body">
         <!-- Add the new two-column layout here -->
         <div class="top-content">
             <!-- Left Column - Calendar -->
@@ -289,12 +289,15 @@ if (!$result) {
         document.getElementById('hiddenContent').value = richContent;
     }
 
-    function openModal() {
-        document.getElementById('announcementModal').style.display = 'block';
+    // Homepage-specific modal functions (renamed to avoid conflicts)
+    function openHomepageModal() {
+        const modal = document.getElementById('announcementModal');
+        if (modal) modal.style.display = 'block';
     }
 
-    function closeModal() {
-        document.getElementById('announcementModal').style.display = 'none';
+    function closeHomepageModal() {
+        const modal = document.getElementById('announcementModal');
+        if (modal) modal.style.display = 'none';
     }
 
     function previewImage(event) {
@@ -309,7 +312,10 @@ if (!$result) {
 
     // Initialize event listeners when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('openFormBtn')?.addEventListener('click', openModal);
+        const openFormBtn = document.getElementById('openFormBtn');
+        if (openFormBtn) {
+            openFormBtn.addEventListener('click', openHomepageModal);
+        }
     });
 
     // CALENDAR FUNCTIONALITY 
@@ -995,6 +1001,15 @@ if (!$result) {
         displayEvents(savedEvents);
     });
     </script>
+    
+    <!-- Include scroll to top button component -->
+    <?php include '../scrolltop/scrolltop.php'; ?>
+    
+    <!-- CSS and notification debugging (remove in production) -->
+    <script src="css_load_debug.js"></script>
+    <script src="notification_debug.js"></script>
+    <script src="css_debug.js"></script>
+    
     <script src="../scrolltop/scrolltop.js" defer></script>
     <?php include '../footer/footer.php'; ?>
 </body>

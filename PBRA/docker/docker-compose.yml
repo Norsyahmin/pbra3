@@ -5,17 +5,13 @@ services:
     environment:
       - TZ=Asia/Singapore
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
     volumes:
       - ../:/var/www/html
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
       - db
-    restart: always
 
   php:
     build:
@@ -25,12 +21,12 @@ services:
     volumes:
       - ../:/var/www/html
     env_file:
-      - ../.env
+      - .env
     environment:
       - TZ=Asia/Singapore
     restart: always
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost/index.php" ]
+      test: ["CMD", "curl", "-f", "http://localhost/index.php"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -40,7 +36,7 @@ services:
     container_name: pbra_db
     restart: always
     env_file:
-      - ../.env
+      - .env
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
       - MYSQL_DATABASE=${DB_DATABASE}
@@ -65,16 +61,6 @@ services:
       - TZ=Asia/Singapore
     depends_on:
       - db
-
-  certbot:
-    image: certbot/certbot
-    container_name: pbra_certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    depends_on:
-      - nginx
-  # entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --post-hook \"nginx -s reload\"; sleep 12h & wait $!; done;'"
 
 volumes:
   pbradatabases:

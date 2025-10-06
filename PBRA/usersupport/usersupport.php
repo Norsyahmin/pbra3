@@ -1,9 +1,8 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
-if (!isset($_SESSION['id']) || $_SESSION['user_type'] !== 'super_admin') {
-  header("Location: ../login.php");
-  exit();
-}
+// includes/auth.php will redirect unauthenticated users to the login page.
+// This page should be accessible to all authenticated users, so do not enforce
+// a specific user_type here.
 
 $page_name = $page_name ?? 'User Support'; // or whatever you want
 $page_url = $page_url ?? $_SERVER['REQUEST_URI'];
@@ -28,9 +27,6 @@ $page_url = $page_url ?? $_SERVER['REQUEST_URI'];
 <body onload="fetchNotifications()">
   <div class="page-title">
     <h1>USER SUPPORT</h1>
-    <button type="button" id="favoriteButton" class="favorite-button" onclick="toggleFavorite()">
-      Add to Favorite
-    </button>
   </div>
 
   <?php include '../navbar/navbar.php'; ?>
@@ -71,44 +67,6 @@ $page_url = $page_url ?? $_SERVER['REQUEST_URI'];
 
   <script>
     window.currentUserId = <?= json_encode($_SESSION['id']) ?>;
-
-    //favorite
-    const pageName = "<?php echo $page_name; ?>";
-    const pageUrl = "<?php echo $page_url; ?>";
-    const button = document.getElementById('favoriteButton');
-
-    // Check if already favorited when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const exists = favorites.find(fav => fav.pageName === pageName);
-      if (exists) {
-        button.classList.add('favorited');
-        button.textContent = 'Favorited';
-      }
-    });
-
-    function toggleFavorite() {
-      let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-
-      const index = favorites.findIndex(fav => fav.pageName === pageName);
-
-      if (index === -1) {
-        // Not favorited yet, add it
-        favorites.push({
-          pageName: pageName,
-          pageUrl: pageUrl
-        });
-        button.classList.add('favorited');
-        button.textContent = 'Favorited';
-      } else {
-        // Already favorited, remove it
-        favorites.splice(index, 1);
-        button.classList.remove('favorited');
-        button.textContent = 'Add to Favorite';
-      }
-
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-    }
   </script>
   <script defer src="usersupport.js"></script>
   <?php include '../scrolltop/scrolltop.php'; ?>

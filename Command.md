@@ -27,7 +27,7 @@ docker compose run --rm \
   certbot \
   certbot certonly \
   --webroot -w /var/www/certbot \
-  -d pbroles.com -d \
+  -d pbroles.com \
   --agree-tos \
   --email pbrauser.help@gmail.com \
   --no-eff-email \

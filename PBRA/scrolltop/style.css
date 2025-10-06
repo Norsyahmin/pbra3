@@ -1,7 +1,7 @@
 /* Scroll to Top Button */
 .scroll-top-button {
     position: fixed;
-    bottom: 40px;
+    bottom: 30px;
     /* bring slightly above bottom to avoid footer overlap */
     right: 30px;
     z-index: 9999;
@@ -12,21 +12,49 @@
     outline: none;
     width: 50px;
     height: 50px;
-    border-radius: 8px;
+    border-radius: 50%;
     font-size: 22px;
+    font-weight: bold;
     cursor: pointer;
     opacity: 0;
     visibility: hidden;
-    transition: background-color 0.2s, opacity 0.2s, visibility 0.2s;
+    transition: all 0.3s ease;
     pointer-events: none;
+    box-shadow: 0 4px 12px rgba(37, 84, 152, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .scroll-top-button.show {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+    transform: translateY(0);
+}
+
+.scroll-top-button:not(.show) {
+    transform: translateY(20px);
 }
 
 .scroll-top-button:hover {
     background-color: #0d47a1;
+    box-shadow: 0 6px 16px rgba(37, 84, 152, 0.4);
+    transform: translateY(-2px);
+}
+
+.scroll-top-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(37, 84, 152, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .scroll-top-button {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
 }

@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../includes/auth.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,7 +33,7 @@
 </head>
 
 <body onload="fetchNotifications()">
-  <?php include '../includes/navbar.php';
+  <?php include __DIR__ . '/../navbar/navbar.php';
 
   $is_admin = false;
   if (isset($_SESSION['id'])) {

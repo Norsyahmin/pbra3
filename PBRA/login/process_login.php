@@ -70,52 +70,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     exit();
                 }
                 // Temporarily disable OTP only for admin/super_admin: bypass OTP sending/verification for those roles
-                // if (in_array($user['user_type'], ['admin', 'super_admin'], true)) {
-                //     // OTP bypass for admin/super_admin: direct to homepage
-                //     $stmt->close();
-                //     header("Location: ../homepage/homepage.php");
-                //     exit();
-                // }
+                if (in_array($user['user_type'], ['admin', 'super_admin'], true)) {
+                    // OTP bypass for admin/super_admin: direct to homepage
+                    $stmt->close();
+                    header("Location: ../homepage/homepage.php");
+                    exit();
+                }
 
                 // Original OTP sending/verification logic (kept commented for reference)
 
                 // If admin or super_admin, send OTP and redirect to OTP verification page; otherwise go to homepage
-                if (in_array($user['user_type'], ['admin', 'super_admin'], true)) {
-                    // Load mailer only when needed and handle configuration errors
-                    try {
-                        $mail = require __DIR__ . '/../mailer.php';
-                    } catch (\Exception $e) {
-                        // Mailer misconfiguration should not expose internals; show a generic message
-                        $_SESSION['login_error'] = "OTP mailer configuration error. Please contact IT support.";
-                        $stmt->close();
-                        header("Location: ../login/login.php");
-                        exit();
-                    }
+                // if (in_array($user['user_type'], ['admin', 'super_admin'], true)) {
+                //     // Load mailer only when needed and handle configuration errors
+                //     try {
+                //         $mail = require __DIR__ . '/../mailer.php';
+                //     } catch (\Exception $e) {
+                //         // Mailer misconfiguration should not expose internals; show a generic message
+                //         $_SESSION['login_error'] = "OTP mailer configuration error. Please contact IT support.";
+                //         $stmt->close();
+                //         header("Location: ../login/login.php");
+                //         exit();
+                //     }
 
-                    // Send OTP synchronously - this is more reliable than async methods
-                    $stmt->close();
+                //     // Send OTP synchronously - this is more reliable than async methods
+                //     $stmt->close();
                     
-                    try {
-                        // Send OTP notification immediately
-                        $otpSent = showOtpNotification($user, $mail);
+                //     try {
+                //         // Send OTP notification immediately
+                //         $otpSent = showOtpNotification($user, $mail);
                         
-                        if ($otpSent) {
-                            // OTP sent successfully, redirect to verification page
-                            header("Location: ../login/verify_otp.php");
-                            exit();
-                        } else {
-                            // OTP sending failed
-                            $_SESSION['login_error'] = "Failed to send OTP email. Please try again or contact IT support.";
-                            header("Location: ../login/login.php");
-                            exit();
-                        }
-                    } catch (\Exception $e) {
-                        error_log('OTP send failed: ' . $e->getMessage());
-                        $_SESSION['login_error'] = "Unable to send OTP email. Please try again.";
-                        header("Location: ../login/login.php");
-                        exit();
-                    }
-                } 
+                //         if ($otpSent) {
+                //             // OTP sent successfully, redirect to verification page
+                //             header("Location: ../login/verify_otp.php");
+                //             exit();
+                //         } else {
+                //             // OTP sending failed
+                //             $_SESSION['login_error'] = "Failed to send OTP email. Please try again or contact IT support.";
+                //             header("Location: ../login/login.php");
+                //             exit();
+                //         }
+                //     } catch (\Exception $e) {
+                //         error_log('OTP send failed: ' . $e->getMessage());
+                //         $_SESSION['login_error'] = "Unable to send OTP email. Please try again.";
+                //         header("Location: ../login/login.php");
+                //         exit();
+                //     }
+                // } 
                 else {
                     // Regular user: direct to homepage
                     $stmt->close();

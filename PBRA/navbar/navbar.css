@@ -192,53 +192,106 @@
     box-sizing: border-box;
 }
 
-/* Notification dropdown container */
-.notification-container {
-    position: absolute;
-    right: 8px;
-    top: 46px;
-    width: 320px;
-    max-height: 420px;
-    overflow: auto;
-    background: #fff;
-    color: #111;
-    border-radius: 8px;
-    box-shadow: 0 6px 20px rgba(10, 25, 55, 0.14);
-    z-index: 1500;
-    padding: 8px;
+/* Notification dropdown container - High specificity to override conflicts */
+#navBarComponent .notification-container,
+.topbar .notification-container {
+    position: absolute !important;
+    right: 8px !important;
+    top: 46px !important;
+    width: 320px !important;
+    max-height: 420px !important;
+    overflow-y: auto !important;
+    background: #fff !important;
+    color: #111 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 25px rgba(10, 25, 55, 0.15) !important;
+    z-index: 1500 !important;
+    border: 1px solid #e1e6f0 !important;
+    animation: slideDown 0.2s ease-out;
 }
 
-/* Notification header */
-.notification-header {
-    font-weight: 600;
-    padding: 8px 12px;
-    border-bottom: 1px solid #eef2ff;
-    color: #174080;
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* Notification list */
-.notification-list {
-    list-style: none;
-    margin: 0;
-    padding: 6px 4px;
+/* Notification header - High specificity */
+#navBarComponent .notification-header,
+.topbar .notification-header {
+    font-weight: 600 !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #eef2ff !important;
+    color: #174080 !important;
+    background: #f8f9fa !important;
+    border-radius: 8px 8px 0 0 !important;
+    font-size: 15px !important;
 }
 
-.notification-list li {
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin: 6px 4px;
-    background: #fff;
-    color: #222;
-    font-size: 14px;
+/* Notification list - High specificity */
+#navBarComponent .notification-list,
+.topbar .notification-list {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 8px 0 !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
+#navBarComponent .notification-list li,
+.topbar .notification-list li {
+    padding: 12px 16px !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    background: #fff !important;
+    color: #333 !important;
+    font-size: 14px !important;
+    line-height: 1.4;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.notification-list li:last-child {
+    border-bottom: none;
 }
 
 .notification-list li a {
     color: inherit;
     text-decoration: none;
+    display: block;
+    width: 100%;
 }
 
 .notification-list li:hover {
     background: #f6f8ff;
+}
+
+/* Loading state for notifications */
+.notification-list li[style*="italic"] {
+    text-align: center;
+    font-style: italic;
+    color: #6c757d;
+}
+
+/* Error state for notifications */
+.notification-list li[style*="color: #dc3545"] {
+    text-align: center;
+    color: #dc3545 !important;
+    font-weight: 500;
+}
+
+/* Empty state for notifications */
+.notification-list li:only-child {
+    text-align: center;
+    padding: 20px 16px;
+    color: #6c757d;
 }
 
 /* Mail button small adjustments */
@@ -602,4 +655,35 @@
 
 .overlay.active {
     display: block;
+}
+
+/* Chat button - matches mail/notification styles */
+.chat-button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0;
+    box-sizing: border-box;
+    border-radius: 8px;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.chat-button i {
+    font-size: 18px;
+    color: #fff;
+    line-height: 1;
+    display: inline-block;
+}
+
+/* chat container spacing (keeps same structure as mail-button-container) */
+.chat-button-container {
+    display: inline-flex;
+    align-items: center;
 }

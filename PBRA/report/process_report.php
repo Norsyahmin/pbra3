@@ -12,7 +12,7 @@ $report_what = $_POST['report_what'];
 $other_report = !empty($_POST['other_report']) ? trim($_POST['other_report']) : NULL;
 $remarks = !empty($_POST['remarks']) ? trim($_POST['remarks']) : NULL;
 
-$upload_dir = realpath("../uploads/reports") . "/";
+$upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/reports/';
 if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0777, true);
 }
